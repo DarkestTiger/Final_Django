@@ -1,0 +1,15 @@
+asgiref==3.8.1
+Django==4.2.11
+django-extensions==3.2.3
+django-seed==0.3.1
+djangorestframework==3.15.1
+djangorestframework-simplejwt==5.3.1
+Faker==25.0.1
+psycopg2==2.9.9
+psycopg2-binary==2.9.9
+PyJWT==2.8.0
+python-dateutil==2.9.0.post0
+six==1.16.0
+sqlparse==0.5.0
+toposort==1.10
+typing_extensions==4.11.0
