@@ -97,8 +97,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=3),
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=5),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=300), # 테스트를 위해 3 -> 300분으로 바꿔놓았음.
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=500), # 테스트를 위해 5 -> 500분으로 바꿔놓았음.
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": False,
     "JWT_SECRET_KEY": SECRET_KEY

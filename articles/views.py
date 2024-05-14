@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import permission_classes, api_view
-# from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 
 from .models import Article,Comment,Hashtag
 from .serializers import ArticleSerializer,ArticleDetailSerializer,CommentSerializer
@@ -21,7 +21,7 @@ class ArticleListAPIView(APIView):
         return Response(serializer.data)
 
     # 게시글 생성
-    # @permission_classes([IsAuthenticated])
+    @permission_classes([IsAuthenticated])
     def post(self, request):
         content = request.data.get("content")
         hashtags = request.data.get("hashtags", [])
@@ -29,7 +29,7 @@ class ArticleListAPIView(APIView):
         if not content:
             return Response({"error": "content is required"}, status=400)
 
-        article = Article.objects.create(content=content)
+        article = Article.objects.create(author=request.user, content=content)
 
         for name in hashtags:
             hashtag, _ = Hashtag.objects.get_or_create(name=name)
@@ -50,12 +50,12 @@ class ArticleDetailAPIView(APIView):
         return Response(serializer.data)
     
     # 게시글 수정
-    # @permission_classes([IsAuthenticated])
+    @permission_classes([IsAuthenticated])
     def put(self, request, articleId):
-        # user = request.user
+        user = request.user
         article = self.get_object(articleId)
-        # if user != article.user:
-        #     return Response({"error": "You are not the author of this article"}, status=status.HTTP_403_FORBIDDEN)
+        if user != article.author:
+            return Response({"error": "You are not the author of this article"}, status=status.HTTP_403_FORBIDDEN)
 
         content = request.data.get("content", None)
         hashtags = request.data.get("hashtags", None)
@@ -74,19 +74,19 @@ class ArticleDetailAPIView(APIView):
         return Response(serializer.data)
     
     # 게시글 삭제
-    # @permission_classes([IsAuthenticated])
+    @permission_classes([IsAuthenticated])
     def delete(self, request, articleId):
-        # user = request.user
+        user = request.user
         article = self.get_object(articleId)
 
-        # if user == article.user:
-        #     article.delete()
-        #     data = {"pk": f"{articleId} is deleted."}
-        #     return Response(data, status=status.HTTP_200_OK)
-        # return Response({"error": "You are not the author of this article"}, status=status.HTTP_403_FORBIDDEN)
-        article.delete()
-        data = {"pk": f"{articleId} is deleted."}
-        return Response(data, status=status.HTTP_200_OK)
+        if user == article.author:
+            article.delete()
+            data = {"pk": f"{articleId} is deleted."}
+            return Response(data, status=status.HTTP_200_OK)
+        return Response({"error": "You are not the author of this article"}, status=status.HTTP_403_FORBIDDEN)
+        # article.delete()
+        # data = {"pk": f"{articleId} is deleted."}
+        # return Response(data, status=status.HTTP_200_OK)
     
 # 댓글 목록
 class CommentListAPIView(APIView):
@@ -101,7 +101,7 @@ class CommentListAPIView(APIView):
         return Response(serializer.data)
     
     # 해당 게시글에 댓글 작성
-    # @permission_classes([IsAuthenticated])
+    @permission_classes([IsAuthenticated])
     def post(self, request, articleId):
         article = self.get_article(articleId)
         serializer = CommentSerializer(data=request.data)
@@ -110,8 +110,8 @@ class CommentListAPIView(APIView):
             if not comment.strip():
                 raise ValidationError("Comment cannot be empty")
             
-            # serializer.save(user=request.user, article=article)
-            serializer.save(article=article)
+            serializer.save(author=request.user, article=article)
+            # serializer.save(article=article)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -128,11 +128,11 @@ class CommentDetailAPIView(APIView):
         return Response(serializer.data)
     
     # 댓글 수정
-    # @permission_classes([IsAuthenticated])
+    @permission_classes([IsAuthenticated])
     def put(self, request, commentId):
         comment = self.get_comment(commentId)
-        # if comment.user != request.user:
-        #     return Response({"error": "You are not the author of this comment"}, status=status.HTTP_403_FORBIDDEN)
+        if comment.author != request.user:
+            return Response({"error": "You are not the author of this comment"}, status=status.HTTP_403_FORBIDDEN)
 
         serializer = CommentSerializer(
             comment, data=request.data, partial=True)
@@ -146,12 +146,12 @@ class CommentDetailAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     # 댓글 삭제
-    # @permission_classes([IsAuthenticated])
+    @permission_classes([IsAuthenticated])
     def delete(self, request, commentId):
         comment = self.get_comment(commentId)
 
-        # if comment.user != request.user:
-        #     return Response({"error": "You are not the author of this comment"}, status=status.HTTP_403_FORBIDDEN)
+        if comment.author != request.user:
+            return Response({"error": "You are not the author of this comment"}, status=status.HTTP_403_FORBIDDEN)
 
         comment.delete()
 

@@ -17,7 +17,7 @@ class Article(models.Model):
     # image_url = ...
 
     # author id
-    # author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="articles")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="articles")
 
     # likes
     # like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name = "like_articles")
@@ -28,7 +28,7 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     # author id
-    # author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
 
     # article id
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="comments")
