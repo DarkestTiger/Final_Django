@@ -13,4 +13,7 @@ urlpatterns = [
 
     # comment
     path("comment/<int:commentId>/", views.CommentDetailAPIView.as_view(), name="comment_detail"),
+    
+    # hashtag search
+    path("search/<str:hashtag>/", views.hashtag_search, name="hashtag_search"),
 ]

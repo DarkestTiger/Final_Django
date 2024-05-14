@@ -5,10 +5,10 @@ from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-# from rest_framework.decorators import permission_classes
+from rest_framework.decorators import permission_classes, api_view
 # from rest_framework.permissions import IsAuthenticated
 
-from .models import Article,Comment
+from .models import Article,Comment,Hashtag
 from .serializers import ArticleSerializer,ArticleDetailSerializer,CommentSerializer
 
 # 게시판 구현
@@ -24,12 +24,17 @@ class ArticleListAPIView(APIView):
     # @permission_classes([IsAuthenticated])
     def post(self, request):
         content = request.data.get("content")
+        hashtags = request.data.get("hashtags", [])
+
         if not content:
             return Response({"error": "content is required"}, status=400)
 
-        article = Article.objects.create(
-            content=content,
-        )
+        article = Article.objects.create(content=content)
+
+        for name in hashtags:
+            hashtag, _ = Hashtag.objects.get_or_create(name=name)
+            article.hashtags.add(hashtag)
+
         serializer = ArticleSerializer(article)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -49,22 +54,24 @@ class ArticleDetailAPIView(APIView):
     def put(self, request, articleId):
         # user = request.user
         article = self.get_object(articleId)
-        # if user == article.user:
-        #     serializer = ArticleDetailSerializer(
-        #         article, data=request.data, partial=True
-        #     )
+        # if user != article.user:
+        #     return Response({"error": "You are not the author of this article"}, status=status.HTTP_403_FORBIDDEN)
 
-        #     if serializer.is_valid(raise_exception=True):
-        #         serializer.save()
-        #         return Response(serializer.data)
-        # return Response({"error": "You are not the author of this article"}, status=status.HTTP_403_FORBIDDEN)
-        serializer = ArticleDetailSerializer(
-                article, data=request.data, partial=True
-            )
+        content = request.data.get("content", None)
+        hashtags = request.data.get("hashtags", None)
 
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data)
+        if content is not None:
+            article.content = content
+
+        if hashtags is not None:
+            article.hashtags.clear()
+            for name in hashtags:
+                hashtag, _ = Hashtag.objects.get_or_create(name=name)
+                article.hashtags.add(hashtag)
+
+        article.save()
+        serializer = ArticleSerializer(article)
+        return Response(serializer.data)
     
     # 게시글 삭제
     # @permission_classes([IsAuthenticated])
@@ -149,3 +156,11 @@ class CommentDetailAPIView(APIView):
         comment.delete()
 
         return Response({"message": "Comment deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+# 해시태그 검색
+@api_view(['GET'])
+def hashtag_search(request, hashtag):
+    article_list=Article.objects.filter(hashtags__name=hashtag)
+    serializer = ArticleSerializer(article_list, many=True)
+
+    return Response(serializer.data)
