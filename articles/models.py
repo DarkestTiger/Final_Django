@@ -20,7 +20,7 @@ class Article(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="articles")
 
     # likes
-    # like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name = "like_articles")
+    like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name = "like_articles")
 
 class Comment(models.Model):
     comment = models.CharField(max_length=200)
@@ -34,4 +34,4 @@ class Comment(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="comments")
 
     # likes
-    # like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="like_comments")
+    like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="like_comments")

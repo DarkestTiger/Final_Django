@@ -115,7 +115,39 @@ class CommentListAPIView(APIView):
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# 게시글 좋아요
+class ArticleLikeAPIView(APIView):
+    def get(self, request, articleId):
+        article = get_object_or_404(Article, pk=articleId)
+        like_users = article.like_users.all()
+        usernames = [user.username for user in like_users]
+        return Response({"like_users": usernames})
     
+    # 게시글 좋아요
+    @permission_classes([IsAuthenticated])
+    def post(self, request, articleId):
+        article = get_object_or_404(Article, pk=articleId)
+        user = request.user
+
+        if user in article.like_users.all():
+            return Response({"error": "You have already liked this article."}, status=status.HTTP_400_BAD_REQUEST)
+
+        article.like_users.add(user)
+        return Response({"success": "You like the article."}, status=status.HTTP_201_CREATED)
+    
+    # 게시글 좋아요 삭제
+    @permission_classes([IsAuthenticated])
+    def delete(self, request, articleId):
+        article = get_object_or_404(Article, pk=articleId)
+        user = request.user
+
+        if user not in article.like_users.all():
+            return Response({"error": "You have not liked this article."}, status=status.HTTP_400_BAD_REQUEST)
+
+        article.like_users.remove(user)
+        return Response({"success": "You unliked the article."}, status=status.HTTP_204_NO_CONTENT)
+
 # 댓글 디테일
 class CommentDetailAPIView(APIView):
     def get_comment(self, commentId):
@@ -156,6 +188,42 @@ class CommentDetailAPIView(APIView):
         comment.delete()
 
         return Response({"message": "Comment deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+
+# 댓글 좋아요
+class CommentLikeAPIView(APIView):
+    def get(self, request, commentId):
+        comment = get_object_or_404(Comment, pk=commentId)
+        like_users = comment.like_users.all()
+        usernames = [user.username for user in like_users]
+        return Response({"like_users": usernames})
+    
+    # 댓글 좋아요
+    @permission_classes([IsAuthenticated])
+    def post(self, request, commentId):
+        comment = get_object_or_404(Comment, pk=commentId)
+        user = request.user
+
+        # 이미 좋아요를 누른 유저는 에러 발생
+        if user in comment.like_users.all():
+            return Response({"error": "You have already liked this comment."}, status=status.HTTP_400_BAD_REQUEST)
+
+        comment.like_users.add(user)
+
+        return Response({"success": "You liked the comment."}, status=status.HTTP_201_CREATED)
+
+    # 댓글 좋아요 삭제
+    @permission_classes([IsAuthenticated])
+    def delete(self, request, commentId):
+        comment = get_object_or_404(Comment, pk=commentId)
+        user = request.user
+
+        # 좋아요를 누르지 않은 유저는 에러 발생
+        if user not in comment.like_users.all():
+            return Response({"error": "You have not liked this comment."}, status=status.HTTP_400_BAD_REQUEST)
+
+        comment.like_users.remove(user)
+
+        return Response({"success": "You unliked the comment."}, status=status.HTTP_204_NO_CONTENT)
 
 # 해시태그 검색
 @api_view(['GET'])
