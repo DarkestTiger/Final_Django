@@ -30,12 +30,14 @@ class UserSignUp(APIView):
             username=username,
             password=data.get("password"),
             introduce = data.get("introduce"),
+            address = data.get("address")
         )
         return Response({
             "id":user.id,
             "username":user.username,
             "email":user.email,
-            "introduce":user.introduce
+            "introduce":user.introduce,
+            "address":user.address
         },
         status=status.HTTP_201_CREATED)
 
