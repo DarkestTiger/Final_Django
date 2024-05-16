@@ -24,6 +24,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     like_count = serializers.SerializerMethodField()
     hashtags = HashtagSerializer(many=True)
+    image = serializers.ImageField(use_url=True)
     class Meta:
         model = Article
         fields = "__all__"

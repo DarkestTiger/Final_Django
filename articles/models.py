@@ -13,7 +13,7 @@ class Article(models.Model):
     hashtags = models.ManyToManyField(Hashtag, blank=True)
 
     # image (로컬/url)
-    # image = ...
+    image = models.ImageField(upload_to="article/images/", blank=True)
     # image_url = ...
 
     # author id

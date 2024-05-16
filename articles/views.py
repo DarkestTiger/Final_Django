@@ -25,11 +25,11 @@ class ArticleListAPIView(APIView):
     def post(self, request):
         content = request.data.get("content")
         hashtags = request.data.get("hashtags", [])
-
+        image = request.data.get("image")
         if not content:
             return Response({"error": "content is required"}, status=400)
 
-        article = Article.objects.create(author=request.user, content=content)
+        article = Article.objects.create(author=request.user, content=content, image=image)
 
         for name in hashtags:
             hashtag, _ = Hashtag.objects.get_or_create(name=name)
@@ -59,6 +59,7 @@ class ArticleDetailAPIView(APIView):
 
         content = request.data.get("content", None)
         hashtags = request.data.get("hashtags", None)
+        image = request.data.get("image", None)
 
         if content is not None:
             article.content = content
@@ -68,6 +69,9 @@ class ArticleDetailAPIView(APIView):
             for name in hashtags:
                 hashtag, _ = Hashtag.objects.get_or_create(name=name)
                 article.hashtags.add(hashtag)
+
+        if image is not None:
+            article.image = image
 
         article.save()
         serializer = ArticleSerializer(article)
