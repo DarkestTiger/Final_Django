@@ -9,6 +9,8 @@ from .serializers import UserSerializer
 from django.contrib.auth import get_user_model
 from accounts.models import User
 
+from rest_framework.views import APIView
+
 #회원가입 기능
 class UserSignUp(APIView):
     def post(self,request):
@@ -88,9 +90,9 @@ class UserLogOut(APIView):
         return Response({"message":"로그인을 해주세요"},status=status.HTTP_400_BAD_REQUEST)
 
 # 프로필 수정 기능
-class UpdateUserDetails():
+class UpdateUserDetails(APIView):
     pass
 
 # 회원 탈퇴기능
-class DeleteProfile():
+class DeleteProfile(APIView):
     pass
