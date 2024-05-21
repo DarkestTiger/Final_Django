@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Article, Comment, Hashtag
 from accounts.serializers import UserSerializer
+from accounts.models import User
 
 class HashtagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,3 +40,10 @@ class ArticleSerializer(serializers.ModelSerializer):
 
 class ArticleDetailSerializer(ArticleSerializer):
     comments = CommentSerializer(many=True, read_only=True)
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    posts = ArticleSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'profile_image', 'posts']

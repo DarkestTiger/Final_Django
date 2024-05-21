@@ -35,3 +35,4 @@ class Comment(models.Model):
 
     # likes
     like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="like_comments")
+

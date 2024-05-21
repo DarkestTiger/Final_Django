@@ -12,10 +12,12 @@ class User(AbstractUser):
     address = models.CharField(max_length=300)
     introduce = models.TextField(blank=True)
 
-    follower = models.ManyToManyField("self", symmetrical=False,blank=True,related_name='followers')
+# related_name을 following로 수정
+    follower = models.ManyToManyField("self", symmetrical=False,blank=True,related_name='following')
 
     def __str__(self):
         return f'{self.username} 님'
     
     def get_picture(instance,filename):
         return f'user_{instance.pk}/{filename}'
+    
