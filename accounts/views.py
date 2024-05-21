@@ -10,8 +10,8 @@ from django.contrib.auth import get_user_model
 from accounts.models import User
 from rest_framework.decorators import api_view, permission_classes
 from django.shortcuts import get_object_or_404
-from articles.models import Article, Comment
-from articles.serializers import ArticleSerializer, CommentSerializer
+from articles.models import Article, Comment, Saved
+from articles.serializers import ArticleSerializer, CommentSerializer, ArticleSavedSerializer
 
 
 
@@ -110,6 +110,7 @@ def user_profile(request, username):
     user_comment = Comment.objects.filter(author = user)
     like_articles = Article.objects.filter(like_users = user)
     like_comment = Comment.objects.filter(like_users = user)
+    saved_list = Saved.objects.filter(owner = user)
 
     following = user.following.all()
     following_user = [u.username for u in following]
@@ -119,6 +120,7 @@ def user_profile(request, username):
     comment_serializer = CommentSerializer(user_comment, many = True )
     like_article_serializer = ArticleSerializer(like_articles, many = True)
     like_comment_serializer = CommentSerializer(like_comment, many = True)
+    saved_list_serializer = ArticleSavedSerializer(saved_list, many=True)
 
     response_data = {
         'user': serializer.data,
@@ -130,7 +132,10 @@ def user_profile(request, username):
 
         'like_articles' : like_article_serializer.data,
         'like_comment' : like_comment_serializer.data,
+
+        'saved_list' : saved_list_serializer.data,
     }
+
     return Response(response_data)
 
 # 팔로우
