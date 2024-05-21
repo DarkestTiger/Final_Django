@@ -27,3 +27,19 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
         instance.save()
         return instance
+    
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret.pop("password")
+        ret.pop("last_login")
+        ret.pop("is_superuser")
+        ret.pop("is_staff")
+        ret.pop("is_active")
+        ret.pop("groups")
+        ret.pop("user_permissions")
+        return ret
+    

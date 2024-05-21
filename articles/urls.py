@@ -1,6 +1,7 @@
 from django.urls import path
 from articles import views
 
+
 app_name = 'articles'
 
 urlpatterns = [
@@ -19,3 +20,4 @@ urlpatterns = [
     # hashtag search
     path("search/<str:hashtag>/", views.hashtag_search, name="hashtag_search"),
 ]
+
