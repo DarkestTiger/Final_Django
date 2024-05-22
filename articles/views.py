@@ -25,6 +25,7 @@ class ArticleListAPIView(APIView):
     @permission_classes([IsAuthenticated])
     def post(self, request):
         content = request.data.get("content")
+        # ','로 해시태그 구분 가능 ex) hashtags = "안녕,반가워"
         hashtags = request.data.get("hashtags", [])
         image = request.data.get("image")
         if not content:
@@ -32,7 +33,7 @@ class ArticleListAPIView(APIView):
 
         article = Article.objects.create(author=request.user, content=content, image=image)
 
-        for name in hashtags:
+        for name in hashtags.split(','):
             hashtag, _ = Hashtag.objects.get_or_create(name=name)
             article.hashtags.add(hashtag)
 
@@ -59,6 +60,7 @@ class ArticleDetailAPIView(APIView):
             return Response({"error": "You are not the author of this article"}, status=status.HTTP_403_FORBIDDEN)
 
         content = request.data.get("content", None)
+        # ','로 해시태그 구분 가능 ex) hashtags = "안녕,반가워"
         hashtags = request.data.get("hashtags", None)
         image = request.data.get("image", None)
 
@@ -67,7 +69,7 @@ class ArticleDetailAPIView(APIView):
 
         if hashtags is not None:
             article.hashtags.clear()
-            for name in hashtags:
+            for name in hashtags.split(','):
                 hashtag, _ = Hashtag.objects.get_or_create(name=name)
                 article.hashtags.add(hashtag)
 
