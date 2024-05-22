@@ -8,8 +8,9 @@ from rest_framework.views import APIView
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Article,Comment,Hashtag
-from .serializers import ArticleSerializer,ArticleDetailSerializer,CommentSerializer
+from .models import Article,Comment,Hashtag,Saved
+from .serializers import ArticleSerializer,ArticleDetailSerializer,CommentSerializer,ArticleSavedSerializer
+
 
 # 게시판 구현
 # 게시글 목록
@@ -234,5 +235,103 @@ class CommentLikeAPIView(APIView):
 def hashtag_search(request, hashtag):
     article_list=Article.objects.filter(hashtags__name=hashtag)
     serializer = ArticleSerializer(article_list, many=True)
-
     return Response(serializer.data)
+
+
+# 저장 목록
+class SavedListAPIView(APIView):
+    # 저장 목록 전체 조회
+    def get(self, request):
+        saved = Saved.objects.all()
+        serializer = ArticleSavedSerializer(saved, many=True)
+        return Response(serializer.data)
+
+    # 저장 목록 생성
+    @permission_classes([IsAuthenticated])
+    def post(self, request):
+        name = request.data.get("name")
+        
+        if not name:
+            return Response({"error": "name is required"}, status=400)
+
+        saved = Saved.objects.create(owner=request.user, name=name)
+
+        serializer = ArticleSavedSerializer(saved)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+# 저장 목록 조회
+class SavedDetailAPIView(APIView):
+    def get_object(self, savedId):
+        return get_object_or_404(Saved, pk=savedId)
+
+    # 저장 목록 내용 조회
+    def get(self, request, savedId):
+        saved = self.get_object(savedId)
+        saved_list = saved.saved_articles.all()
+        articles = [s.content for s in saved_list]
+        return Response({"saved articles": articles})
+
+    # 저장 목록 이름 수정
+    @permission_classes([IsAuthenticated])
+    def put(self, request, savedId):
+        user = request.user
+        saved = self.get_object(savedId)
+        if user != saved.owner:
+            return Response({"error": "You are not the owner of this saved list!"}, status=status.HTTP_403_FORBIDDEN)
+
+        name = request.data.get("name", None)
+        hashtags = request.data.get("hashtags", None)
+        image = request.data.get("image", None)
+
+        if name is not None:
+            saved.name = name
+
+        saved.save()
+        serializer = ArticleSavedSerializer(saved)
+        return Response(serializer.data)
+
+    # 저장 목록 삭제
+    @permission_classes([IsAuthenticated])
+    def delete(self, request, savedId):
+        user = request.user
+        saved = self.get_object(savedId)
+
+        if user == saved.owner:
+            saved.delete()
+            return Response({"success": "saved list successfully deleted."}, status=status.HTTP_200_OK)
+        return Response({"error": "You are not the owner of this saved list!"}, status=status.HTTP_403_FORBIDDEN)
+
+# 게시글 저장됨
+class ArticleSavedAPIView(APIView):
+    # 해당 저장목록에 게시글 저장
+    @permission_classes([IsAuthenticated])
+    def post(self, request, savedId, articleId):
+        saved = get_object_or_404(Saved, pk=savedId)
+        article = get_object_or_404(Article, pk=articleId)
+        user = request.user
+
+        if user != saved.owner:
+            return Response({"error": "You are not the owner of this saved list!"}, status=status.HTTP_403_FORBIDDEN)
+        
+        # 이미 저장을 한 경우 에러 발생
+        if saved.saved_articles.filter(id=articleId).exists():
+            return Response({"error": "You have already saved this article."}, status=status.HTTP_400_BAD_REQUEST)
+
+        saved.saved_articles.add(article)
+
+        return Response({"success": "You saved the article in saved list."}, status=status.HTTP_201_CREATED)
+    
+    # 게시글 저장 취소
+    @permission_classes([IsAuthenticated])
+    def delete(self, request, savedId, articleId):
+        saved = get_object_or_404(Saved, pk=savedId)
+        article = get_object_or_404(Article, pk=articleId)
+        user = request.user
+
+        # 저장하지 않았을 경우 에러 발생
+        if not saved.saved_articles.filter(id=articleId).exists():
+            return Response({"error": "You have not saved this article."}, status=status.HTTP_400_BAD_REQUEST)
+
+        saved.saved_articles.remove(article)
+
+        return Response({"success": "You unsaved the article."}, status=status.HTTP_204_NO_CONTENT)

@@ -5,7 +5,11 @@ from django.conf import settings
 # Create your models here.
 class Hashtag(models.Model):
     name = models.CharField(max_length=20, unique=True)
-    
+
+class Saved(models.Model):
+    name = models.CharField(max_length=20)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="saved")
+
 class Article(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -21,6 +25,9 @@ class Article(models.Model):
 
     # likes
     like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name = "like_articles")
+
+    # saved
+    saved_list = models.ManyToManyField(Saved, related_name="saved_articles")
 
 class Comment(models.Model):
     comment = models.CharField(max_length=200)

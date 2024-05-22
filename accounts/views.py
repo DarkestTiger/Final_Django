@@ -5,11 +5,15 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserProfileSerializer
 from django.contrib.auth import get_user_model
 from accounts.models import User
+from rest_framework.decorators import api_view, permission_classes
+from django.shortcuts import get_object_or_404
+from articles.models import Article, Comment, Saved
+from articles.serializers import ArticleSerializer, CommentSerializer, ArticleSavedSerializer
 
-from rest_framework.views import APIView
+
 
 #회원가입 기능
 class UserSignUp(APIView):
@@ -17,6 +21,7 @@ class UserSignUp(APIView):
         data=request.data        
         username = data.get("username")
         email = data.get("email")
+        profile_img  = data.get("profile_img")
         errors = {}
         if not email or not username:
             errors["error"] = "email or username is required"
@@ -32,14 +37,18 @@ class UserSignUp(APIView):
             username=username,
             password=data.get("password"),
             introduce = data.get("introduce"),
-            address = data.get("address")
+            address = data.get("address"),
+            profile_img = profile_img
         )
         return Response({
             "id":user.id,
             "username":user.username,
             "email":user.email,
             "introduce":user.introduce,
-            "address":user.address
+            "address":user.address,
+            
+            # 이미지를 json으로 받으려해서 오류 -> serialize 해줘야 함.
+            "profile_image":user.profile_img.url,
         },
         status=status.HTTP_201_CREATED)
 
@@ -96,3 +105,66 @@ class UpdateUserDetails(APIView):
 # 회원 탈퇴기능
 class DeleteProfile(APIView):
     pass
+
+# 보여지는 프로필 페이지
+@api_view(['GET'])
+def user_profile(request, username):
+
+    user = get_object_or_404(User,username = username)
+    user_articles = Article.objects.filter(author = user)
+    user_comment = Comment.objects.filter(author = user)
+    like_articles = Article.objects.filter(like_users = user)
+    like_comment = Comment.objects.filter(like_users = user)
+    saved_list = Saved.objects.filter(owner = user)
+
+    following = user.following.all()
+    following_user = [u.username for u in following]
+
+    serializer = UserProfileSerializer(user)
+    article_serializer = ArticleSerializer(user_articles, many = True )
+    comment_serializer = CommentSerializer(user_comment, many = True )
+    like_article_serializer = ArticleSerializer(like_articles, many = True)
+    like_comment_serializer = CommentSerializer(like_comment, many = True)
+    saved_list_serializer = ArticleSavedSerializer(saved_list, many=True)
+
+    response_data = {
+        'user': serializer.data,
+
+        'following': following_user,
+
+        'written_articles' : article_serializer.data,
+        'written_comment' : comment_serializer.data,
+
+        'like_articles' : like_article_serializer.data,
+        'like_comment' : like_comment_serializer.data,
+
+        'saved_list' : saved_list_serializer.data,
+    }
+
+    return Response(response_data)
+
+# 팔로우
+class UserFollow(APIView):
+    @permission_classes([IsAuthenticated])
+    def post(self, request, username):
+        user = get_object_or_404(User, username = username)
+        if request.user == user:
+            return Response({"error":"자기 자신을 팔로우 할 수 없습니다." }, status = status.HTTP_400_BAD_REQUEST)
+        if request.user in user.follower.all():
+            return Response({"error":"이미 팔로우를 했습니다." }, status = status.HTTP_400_BAD_REQUEST)
+        user.follower.add(request.user)
+        return Response({"success":"팔로우 완료" }, status = status.HTTP_201_CREATED)
+
+# 언팔로우
+    @permission_classes([IsAuthenticated])
+    def delete(self, request, username):
+        user = get_object_or_404(User,username = username)
+        if request.user == user:
+            return Response({"error":"자기 자신을 언팔로우 할 수 없습니다." }, status = status.HTTP_400_BAD_REQUEST)
+        if request.user not in user.follower.all():
+            return Response({"error":"팔로우 한 적이 없습니다." }, status = status.HTTP_400_BAD_REQUEST)
+        user.follower.remove(request.user)
+        return Response({"success":"언팔로우 완료" }, status = status.HTTP_204_NO_CONTENT)
+    
+
+
