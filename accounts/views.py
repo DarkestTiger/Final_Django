@@ -21,6 +21,7 @@ class UserSignUp(APIView):
         data=request.data        
         username = data.get("username")
         email = data.get("email")
+        profile_img  = data.get("profile_img")
         errors = {}
         if not email or not username:
             errors["error"] = "email or username is required"
@@ -36,14 +37,18 @@ class UserSignUp(APIView):
             username=username,
             password=data.get("password"),
             introduce = data.get("introduce"),
-            address = data.get("address")
+            address = data.get("address"),
+            profile_img = profile_img
         )
         return Response({
             "id":user.id,
             "username":user.username,
             "email":user.email,
             "introduce":user.introduce,
-            "address":user.address
+            "address":user.address,
+            
+            # 이미지를 json으로 받으려해서 오류 -> serialize 해줘야 함.
+            "profile_image":user.profile_img.url,
         },
         status=status.HTTP_201_CREATED)
 
