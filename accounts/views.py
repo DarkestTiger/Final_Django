@@ -46,7 +46,7 @@ class UserSignUp(APIView):
             "email":user.email,
             "introduce":user.introduce,
             "address":user.address,
-            
+
             # 이미지를 json으로 받으려해서 오류 -> serialize 해줘야 함.
             "profile_image":user.profile_img.url,
         },
@@ -111,7 +111,7 @@ class DeleteProfile(APIView):
 def user_profile(request, username):
 
     user = get_object_or_404(User,username = username)
-    user_articles = Article.objects.filter(author = user)
+    user_articles = Article.objects.filter(author = user).order_by('-created_at')
     user_comment = Comment.objects.filter(author = user)
     like_articles = Article.objects.filter(like_users = user)
     like_comment = Comment.objects.filter(like_users = user)
