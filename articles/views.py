@@ -26,7 +26,7 @@ class ArticleListAPIView(APIView):
     def post(self, request):
         content = request.data.get("content")
         # ','로 해시태그 구분 가능 ex) hashtags = "안녕,반가워"
-        hashtags = request.data.get("hashtags", [])
+        hashtags = request.data.get("hashtags", "")
         image = request.data.get("image")
         if not content:
             return Response({"error": "content is required"}, status=400)
@@ -61,7 +61,7 @@ class ArticleDetailAPIView(APIView):
 
         content = request.data.get("content", None)
         # ','로 해시태그 구분 가능 ex) hashtags = "안녕,반가워"
-        hashtags = request.data.get("hashtags", None)
+        hashtags = request.data.get("hashtags", "")
         image = request.data.get("image", None)
 
         if content is not None:
