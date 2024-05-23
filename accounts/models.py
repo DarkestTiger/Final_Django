@@ -14,10 +14,9 @@ class User(AbstractUser):
     introduce = models.TextField(blank=True)
 
     def get_profile_url(self):
-        if self.profile_img is None:
-            self.profile_img.url = static('user.png')
-        else:
-            return self.profile_img.url
+        if not self.profile_img:
+            return static('user.png')
+        return self.profile_img.url
 
 # related_name을 following로 수정
     follower = models.ManyToManyField("self", symmetrical=False,blank=True,related_name='following')
