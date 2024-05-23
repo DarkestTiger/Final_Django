@@ -48,7 +48,8 @@ class UserSignUp(APIView):
             "address":user.address,
 
             # 이미지를 json으로 받으려해서 오류 -> serialize 해줘야 함.
-            "profile_image":user.profile_img.url,
+            # "profile_image":user.profile_img.url,
+            "profile_image": user.get_profile_url(),
         },
         status=status.HTTP_201_CREATED)
 
