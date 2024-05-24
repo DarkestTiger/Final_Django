@@ -53,7 +53,7 @@ class UserSignUp(APIView):
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
                                     ※다음 자치시들의 경우 구까지 입력 가능 ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
-            if city_eng in DISTRICTS and district not in DISTRICTS[city_eng]:
+            if city_eng in DISTRICTS and district not in DISTRICTS[city_eng]: # '경기 수원'만 입력해도 가능 -> 그러면, 시/구/군/읍/동 등으로 안끝나면 에러.
                 return Response({"error": f"""주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
                                     ※다음 자치시들의 경우 구까지 입력 가능 ex) XX XX시 XX구 
