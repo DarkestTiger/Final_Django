@@ -115,7 +115,7 @@ class CommentListAPIView(APIView):
         if serializer.is_valid():
             comment = serializer.validated_data.get('comment')
             if not comment.strip():
-                raise ValidationError("Comment cannot be empty")
+                return Response({"error": "Comment cannot be empty"}, status=status.HTTP_403_FORBIDDEN)
             
             serializer.save(author=request.user, article=article)
             # serializer.save(article=article)
@@ -179,7 +179,7 @@ class CommentDetailAPIView(APIView):
         if serializer.is_valid():
             content = serializer.validated_data.get('comment')
             if not content.strip():
-                raise ValidationError("Comment cannot be empty")
+                return Response({"error": "Comment cannot be empty"}, status=status.HTTP_403_FORBIDDEN)
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
