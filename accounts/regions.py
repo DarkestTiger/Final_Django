@@ -45,7 +45,7 @@ DISTRICTS = {
     'daejeon':DAEJEON_DISTRICTS,
     'ulsan':ULSAN_DISTRICTS,
     'sejong':SEJONG_DISTRICTS,
-    'gyunggi':GYEONGGI_DISTRICTS,
+    'gyeonggi':GYEONGGI_DISTRICTS,
     'gangwon':GANGWON_DISTRICTS,
     'chungbuk':CHUNGBUK_DISTRICTS,
     'chungnam':CHUNGNAM_DISTRICTS,
