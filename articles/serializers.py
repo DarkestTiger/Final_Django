@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from .models import Article, Comment, Hashtag, Saved
+
 from accounts.serializers import UserSerializer
 from accounts.models import User
 
