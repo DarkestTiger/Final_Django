@@ -2,17 +2,20 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserSerializer, UserProfileSerializer
-from django.contrib.auth import get_user_model
-from accounts.models import User
 from rest_framework.decorators import api_view, permission_classes
+
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+
+from accounts.models import User
+
 from articles.models import Article, Comment, Saved
 from articles.serializers import ArticleSerializer, CommentSerializer, ArticleSavedSerializer
-from django.core.exceptions import ValidationError
+
+from .serializers import UserSerializer, UserProfileSerializer
 from .regions import REGIONS, DISTRICTS
 
 
@@ -24,19 +27,21 @@ class UserSignUp(APIView):
         email = data.get("email")
         profile_img  = data.get("profile_img")
         address = data.get("address")
+
+        # 주소 검증
         if address:
-            try: # 서울 서초구 / 서울시(x) -> 부산 해운대구, 서울 해운대구
+            try: 
                 city = address[0:2]
                 district = address[3:].rstrip()
                 if not district:
                     return Response({"error": """주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
-                                    ※다음 자치시들의 경우 구까지 입력 가능 ex) XX XX시 XX구 
+                                    ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
             except ValueError:
                 return Response({"error": """주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
-                                    ※다음 자치시들의 경우 구까지 입력 가능 ex) XX XX시 XX구 
+                                    ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
             
             index_of_city = None
@@ -51,14 +56,16 @@ class UserSignUp(APIView):
             if city_eng not in regions:
                 return Response({"error": f"""주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
-                                    ※다음 자치시들의 경우 구까지 입력 가능 ex) XX XX시 XX구 
+                                    ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
-            if city_eng in DISTRICTS and district not in DISTRICTS[city_eng]: # '경기 수원'만 입력해도 가능 -> 그러면, 시/구/군/읍/동 등으로 안끝나면 에러.
+            if city_eng in DISTRICTS and district not in DISTRICTS[city_eng]:
                 return Response({"error": f"""주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
-                                    ※다음 자치시들의 경우 구까지 입력 가능 ex) XX XX시 XX구 
+                                    ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
+            
         errors = {}
+
         if not email or not username:
             errors["error"] = "email or username is required"
         else:
@@ -66,8 +73,10 @@ class UserSignUp(APIView):
                 errors["email"] = "이미 존재하는 email 입니다."
             if get_user_model().objects.filter(username=username).exists():
                 errors["username"] = "이미 존재하는 username 입니다. "
+
         if errors:
             return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+        
         user = get_user_model().objects.create_user(
             email=email,
             username=username,
@@ -76,15 +85,13 @@ class UserSignUp(APIView):
             address = address,
             profile_img = profile_img
         )
+
         return Response({
             "id":user.id,
             "username":user.username,
             "email":user.email,
             "introduce":user.introduce,
             "address":user.address,
-
-            # 이미지를 json으로 받으려해서 오류 -> serialize 해줘야 함.
-            # "profile_image":user.profile_img.url,
             "profile_image": user.get_profile_url(),
         },
         status=status.HTTP_201_CREATED)

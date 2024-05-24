@@ -25,4 +25,3 @@ urlpatterns = [
     path("saved/<int:savedId>/",views.SavedDetailAPIView.as_view(),name="saved_detail"),
     path("saved/<int:savedId>/<int:articleId>/", views.ArticleSavedAPIView.as_view(), name="article_saved"),
 ]
-
