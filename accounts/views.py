@@ -31,12 +31,12 @@ class UserSignUp(APIView):
                 if not district:
                     return Response({"error": """주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
-                                    ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
+                                    ※다음 자치시들의 경우 구까지 입력 가능 ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
             except ValueError:
                 return Response({"error": """주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
-                                    ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
+                                    ※다음 자치시들의 경우 구까지 입력 가능 ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
             
             index_of_city = None
@@ -51,12 +51,12 @@ class UserSignUp(APIView):
             if city_eng not in regions:
                 return Response({"error": f"""주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
-                                    ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
+                                    ※다음 자치시들의 경우 구까지 입력 가능 ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
             if city_eng in DISTRICTS and district not in DISTRICTS[city_eng]:
                 return Response({"error": f"""주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
-                                    ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
+                                    ※다음 자치시들의 경우 구까지 입력 가능 ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
         errors = {}
         if not email or not username:
