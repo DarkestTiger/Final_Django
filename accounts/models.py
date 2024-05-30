@@ -10,6 +10,7 @@ class User(AbstractUser):
     profile_img = models.ImageField(upload_to="media\profile", blank=True)
     address = models.CharField(max_length=300)
     introduce = models.TextField(blank=True)
+
     follower = models.ManyToManyField("self", symmetrical=False,blank=True,related_name='followers')
 
     def __str__(self):
