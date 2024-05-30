@@ -7,7 +7,7 @@ LOCAL_HOST="http://127.0.0.1:8000/"
 class User(AbstractUser):
     username = models.CharField(unique=True, max_length=30)
     email = models.EmailField(unique=True)
-    profile_img = models.ImageField(upload_to="media\profile")
+    profile_img = models.ImageField(upload_to="media\profile", blank=True)
     address = models.CharField(max_length=300)
     introduce = models.TextField(blank=True)
     follower = models.ManyToManyField("self", symmetrical=False,blank=True,related_name='followers')
