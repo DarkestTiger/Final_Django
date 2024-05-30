@@ -18,4 +18,6 @@ def article_list_template_view(request):
     ]
 
     bear_list = ["사나운곰"]
+
     return render(request, "articles/article_list.html")
+
