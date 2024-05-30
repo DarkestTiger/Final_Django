@@ -1,3 +1,4 @@
+
 from django.db import models
 from accounts.models import User
 from django.conf import settings
@@ -42,4 +43,3 @@ class Comment(models.Model):
 
     # likes
     like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="like_comments")
-

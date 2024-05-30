@@ -4,7 +4,6 @@ from articles import views, template_views
 
 app_name = 'articles'
 
-
 template_urlpatterns = [
     path("list/template/", template_views.article_list_template_view, name="list-template")
 ]
@@ -12,7 +11,6 @@ template_urlpatterns = [
 drf_urlpatterns = [
     # article list
     path("", views.ArticleListAPIView.as_view(), name='article_list'),
-
 
     # article detail
     path("<int:articleId>/", views.ArticleDetailAPIView.as_view(), name="article_detail"),
@@ -23,13 +21,10 @@ drf_urlpatterns = [
     path("comment/<int:commentId>/", views.CommentDetailAPIView.as_view(), name="comment_detail"),
     path("comment/<int:commentId>/like/", views.CommentLikeAPIView.as_view(), name="comment_like"),
 
-
-
     # hashtag search
     path("search/<str:hashtag>/", views.hashtag_search, name="hashtag_search"),
 
     # saved articles
-
 
     path("saved/", views.SavedListAPIView.as_view(), name="saved_list"),
     path("saved/<int:savedId>/", views.SavedDetailAPIView.as_view(), name="saved_detail"),
@@ -37,4 +32,3 @@ drf_urlpatterns = [
 ]
 
 urlpatterns = drf_urlpatterns + template_urlpatterns
-

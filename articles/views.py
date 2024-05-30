@@ -1,4 +1,7 @@
+<<<<<<< HEAD
+=======
 from django.shortcuts import render
+>>>>>>> 38d46d0553eacfd7cbf6a7b25185727da9efe9d0
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
 

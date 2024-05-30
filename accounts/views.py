@@ -239,6 +239,3 @@ class UserFollow(APIView):
             return Response({"error":"팔로우 한 적이 없습니다." }, status = status.HTTP_400_BAD_REQUEST)
         user.follower.remove(request.user)
         return Response({"success":"언팔로우 완료" }, status = status.HTTP_204_NO_CONTENT)
-    
-
-
