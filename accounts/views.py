@@ -3,7 +3,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.generics import RetrieveUpdateAPIView, RetrieveDestroyAPIView
+
 from rest_framework.decorators import api_view, permission_classes
 
 from django.contrib.auth.hashers import check_password
@@ -96,6 +98,7 @@ class UserSignUp(APIView):
         },
         status=status.HTTP_201_CREATED)
 
+
 # 로그인 기능
 class UserLogIn(APIView):
     def post(self,request):
@@ -143,15 +146,40 @@ class UserLogOut(APIView):
         return Response({"message":"로그인을 해주세요"},status=status.HTTP_400_BAD_REQUEST)
 
 # 프로필 수정 기능
-class UpdateUserDetails(APIView):
-    pass
+class UpdateProfileView(RetrieveUpdateAPIView):
+    @permission_classes([IsAuthenticated])
+    def put(self, request, username):
+        serializer = UserProfileSerializer(instance=request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # 회원 탈퇴기능
-class DeleteProfile(APIView):
-    pass
+
+class DeleteProfile(RetrieveDestroyAPIView):
+    @permission_classes([IsAuthenticated])
+    def delete(self,request,username):
+        print(request)
+        user=get_object_or_404(get_user_model(),username=username)
+        if request.user != user:
+            return Response({"message":"권한이 없습니다."},status=status.HTTP_403_FORBIDDEN)
+        else:
+            password = request.data.get("password")
+            if not password:
+                return Response({"error": "비밀번호는 필수입니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not request.user.check_password(password):
+                return Response({"error": "비밀번호가 올바르지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+            request.user.delete()
+            return Response({"message": "회원탈퇴완료"}, status=status.HTTP_204_NO_CONTENT)
 
 # 보여지는 프로필 페이지
 @api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def user_profile(request, username):
 
     user = get_object_or_404(User,username = username)
@@ -161,7 +189,9 @@ def user_profile(request, username):
     like_comment = Comment.objects.filter(like_users = user)
     saved_list = Saved.objects.filter(owner = user)
 
-    following = user.following.all()
+
+    following = user.follower.all()
+
     following_user = [u.username for u in following]
 
     serializer = UserProfileSerializer(user)
