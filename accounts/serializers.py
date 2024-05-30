@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from django.contrib.auth import get_user_model
+
 from .models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -28,6 +30,7 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
     
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
     

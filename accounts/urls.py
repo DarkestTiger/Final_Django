@@ -1,4 +1,5 @@
 from django.urls import path
+
 from accounts import views, templates_views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -26,3 +27,4 @@ drf_urlpatterns = [ path("auth/signup/", views.UserSignUp.as_view(), name='api_s
 ]
 
 urlpatterns = drf_urlpatterns + templates_urlpatterns
+

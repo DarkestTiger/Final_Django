@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <style>
+        #main-container {
+            background-color: lightgray;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #main-container > .article-container {
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            border: 1px gray solid;
+            margin-bottom: 4px;
+        }
+        #main-container > .article-container > .like {
+            font-size: 8px;
+        }
+
+        #main-container > .article-container > img {
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+
+    <h1>ARTICLE LIST</h1>
+
+    <div id="main-container"></div>
+
+    <script>
+        $.ajax({
+            type: "GET",
+            url: "/articles/",
+            success: function (response) {
+                console.log(response)
+                const mainContainer = document.getElementById('main-container')
+                response.forEach(function (article) {
+                    const articleContainer = document.createElement('div')
+                    articleContainer.classList.add('article-container')
+
+                    articleContainer.innerHTML = `
+                        <img src='${article.image}'/>
+                        <div class="content">${article.content}</div>
+                        <div class="like">${article.like_count}</div>
+                        <div class="created-at">${article.created_at}</div>
+                    `
+                    mainContainer.appendChild(articleContainer)
+                })
+            },
+        });
+    </script>
+{% endblock %}

@@ -5,6 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.generics import RetrieveUpdateAPIView, RetrieveDestroyAPIView
+
 from rest_framework.decorators import api_view, permission_classes
 
 from django.contrib.auth.hashers import check_password
@@ -188,7 +189,9 @@ def user_profile(request, username):
     like_comment = Comment.objects.filter(like_users = user)
     saved_list = Saved.objects.filter(owner = user)
 
+
     following = user.follower.all()
+
     following_user = [u.username for u in following]
 
     serializer = UserProfileSerializer(user)
@@ -237,4 +240,5 @@ class UserFollow(APIView):
         user.follower.remove(request.user)
         return Response({"success":"언팔로우 완료" }, status = status.HTTP_204_NO_CONTENT)
     
+
 
