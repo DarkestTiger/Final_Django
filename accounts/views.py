@@ -8,9 +8,12 @@ from rest_framework.generics import RetrieveUpdateAPIView, RetrieveDestroyAPIVie
 
 from rest_framework.decorators import api_view, permission_classes
 
+from django.conf import settings # 구글 위치 API
+from django.http import JsonResponse # 구글 위치 API
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
+from django.db.models import Case, When, IntegerField
 
 from accounts.models import User
 
@@ -20,6 +23,7 @@ from articles.serializers import ArticleSerializer, CommentSerializer, ArticleSa
 from .serializers import UserSerializer, UserProfileSerializer
 from .regions import REGIONS, DISTRICTS
 
+import googlemaps # 구글 위치 API
 
 #회원가입 기능
 class UserSignUp(APIView):
@@ -239,3 +243,45 @@ class UserFollow(APIView):
             return Response({"error":"팔로우 한 적이 없습니다." }, status = status.HTTP_400_BAD_REQUEST)
         user.follower.remove(request.user)
         return Response({"success":"언팔로우 완료" }, status = status.HTTP_204_NO_CONTENT)
+    
+
+# 프로필 추천
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def profile_recommend(request):
+    user = request.user
+    user_region = user.address[0:2]
+    user_district = user.address[3:].rstrip()
+    users = User.objects.annotate(
+            priority=Case(
+                When(address__startswith=f"{user_region} {user_district}", then=1),  # 같은 지역, 같은 구
+                When(address__startswith=user_region, then=2),  # 같은 지역
+                default=3,  # 나머지
+                output_field=IntegerField(),
+            )
+        ).filter(priority__lte = 2).exclude(id=user.id).order_by('priority')[:5]
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
+
+# 구글 위치 API
+
+def get_location_data(request):
+    address = request.GET.get('address')
+    if not address:
+        return JsonResponse({'error': 'Address parameter is required'}, status=400)
+
+    gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+    geocode_result = gmaps.geocode(address)
+    
+    if not geocode_result:
+        return JsonResponse({'error': 'No results found'}, status=404)
+
+    location = geocode_result[0]['geometry']['location']
+    return JsonResponse(location)
+
+
+def map_view(request):
+    context = {
+        'GOOGLE_MAPS_API_KEY': settings.GOOGLE_MAPS_API_KEY
+    }
+    return render(request, 'map_views.html', context)
