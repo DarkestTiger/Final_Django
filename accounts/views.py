@@ -45,13 +45,13 @@ class UserSignUp(APIView):
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
                                     ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""},
-                                    status=status.HTTP_403_FORBIDDEN)
+                                    status=status.HTTP_400_BAD_REQUEST)
             except ValueError:
                 return Response({"error": """주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
                                     ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""},
-                                status=status.HTTP_403_FORBIDDEN)
+                                status=status.HTTP_400_BAD_REQUEST)
 
             index_of_city = None
             for index, (english, korean) in enumerate(REGIONS):
@@ -67,13 +67,13 @@ class UserSignUp(APIView):
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
                                     ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""},
-                                status=status.HTTP_403_FORBIDDEN)
+                                status=status.HTTP_400_BAD_REQUEST)
             if city_eng in DISTRICTS and district not in DISTRICTS[city_eng]:
                 return Response({"error": f"""주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
                                     ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""},
-                                status=status.HTTP_403_FORBIDDEN)
+                                status=status.HTTP_400_BAD_REQUEST)
 
         errors = {}
 
@@ -149,13 +149,13 @@ class UpdateProfileView(RetrieveUpdateAPIView):
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
                                     ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""},
-                                    status=status.HTTP_403_FORBIDDEN)
+                                    status=status.HTTP_400_BAD_REQUEST)
             except ValueError:
                 return Response({"error": """주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
                                     ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""},
-                                status=status.HTTP_403_FORBIDDEN)
+                                status=status.HTTP_400_BAD_REQUEST)
 
             index_of_city = None
             for index, (english, korean) in enumerate(REGIONS):
@@ -164,7 +164,7 @@ class UpdateProfileView(RetrieveUpdateAPIView):
                     break
 
             if index_of_city is None:
-                return Response({"error": "유효하지 않은 시/도입니다."}, status=status.HTTP_403_FORBIDDEN)
+                return Response({"error": "유효하지 않은 시/도입니다."}, status=status.HTTP_400_BAD_REQUEST)
 
             city_eng = REGIONS[index_of_city][0]
             regions = [region for region, _ in REGIONS]
@@ -174,14 +174,14 @@ class UpdateProfileView(RetrieveUpdateAPIView):
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
                                     ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""},
-                                status=status.HTTP_403_FORBIDDEN)
+                                status=status.HTTP_400_BAD_REQUEST)
 
             if city_eng in DISTRICTS and district not in DISTRICTS[city_eng]:
                 return Response({"error": """주소는 'XX XX구/군/시' 형식이어야 합니다. 
                                     예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
                                     ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
                                     수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""},
-                                status=status.HTTP_403_FORBIDDEN)
+                                status=status.HTTP_400_BAD_REQUEST)
         serializer = UserProfileSerializer(instance=request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
