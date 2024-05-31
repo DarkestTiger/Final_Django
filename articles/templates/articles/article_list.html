@@ -1,30 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<<<<<<< HEAD
-    <style>
-        #main-container {
-            background-color: lightgray;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #main-container > .article-container {
-            width: 100px;
-            height: 100px;
-            background-color: white;
-            border: 1px gray solid;
-            margin-bottom: 4px;
-        }
-        #main-container > .article-container > .like {
-            font-size: 8px;
-        }
-
-        #main-container > .article-container > img {
-            width: 50px;
-            height: 50px;
-        }
-=======
 <style>
     #main-container {
         background-color: lightgray;
@@ -48,7 +24,6 @@
         width: 50px;
         height: 50px;
     }
->>>>>>> feat/Article
     </style>
 
     <h1>ARTICLE LIST</h1>
@@ -65,16 +40,6 @@
                 response.forEach(function (article) {
                     const articleContainer = document.createElement('div')
                     articleContainer.classList.add('article-container')
-<<<<<<< HEAD
-
-                    articleContainer.innerHTML = `
-                        <img src='${article.image}'/>
-                        <div class="content">${article.content}</div>
-                        <div class="like">${article.like_count}</div>
-                        <div class="created-at">${article.created_at}</div>
-                    `
-                    mainContainer.appendChild(articleContainer)
-=======
                     const date = new Date(article.created_at)
                     let articleHTML = `
                 <div class="content">${article.content}</div>
@@ -96,7 +61,6 @@
                 hashtagElement.textContent = `#${hashtag.name} `;
                 hashtagsContainer.appendChild(hashtagElement);
             });
->>>>>>> feat/Article
                 })
             },
         });
