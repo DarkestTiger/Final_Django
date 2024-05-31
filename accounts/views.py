@@ -21,6 +21,7 @@ from .regions import REGIONS, DISTRICTS
 import googlemaps # 구글 위치 API
 from django.conf import settings # 구글 위치 API
 from django.http import JsonResponse # 구글 위치 API
+from django.shortcuts import render # 구글 주소 정보
 
 #회원가입 기능
 class UserSignUp(APIView):
