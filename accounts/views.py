@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 
 from accounts.models import User
 
@@ -18,6 +18,9 @@ from articles.serializers import ArticleSerializer, CommentSerializer, ArticleSa
 from .serializers import UserSerializer, UserProfileSerializer
 from .regions import REGIONS, DISTRICTS
 
+import googlemaps # 구글 위치 API
+from django.conf import settings # 구글 위치 API
+from django.http import JsonResponse # 구글 위치 API
 
 #회원가입 기능
 class UserSignUp(APIView):
@@ -210,5 +213,25 @@ class UserFollow(APIView):
         user.follower.remove(request.user)
         return Response({"success":"언팔로우 완료" }, status = status.HTTP_204_NO_CONTENT)
     
+# 구글 위치 API
+
+def get_location_data(request):
+    address = request.GET.get('address')
+    if not address:
+        return JsonResponse({'error': 'Address parameter is required'}, status=400)
+
+    gmaps = googlemaps.Client(key=settings.GOOGLE_MAPS_API_KEY)
+    geocode_result = gmaps.geocode(address)
+    
+    if not geocode_result:
+        return JsonResponse({'error': 'No results found'}, status=404)
+
+    location = geocode_result[0]['geometry']['location']
+    return JsonResponse(location)
 
 
+def map_view(request):
+    context = {
+        'GOOGLE_MAPS_API_KEY': settings.GOOGLE_MAPS_API_KEY
+    }
+    return render(request, 'map_views.html', context)

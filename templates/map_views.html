@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Maps Example</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}"></script>
+    <script>
+        function initMap() {
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 12,
+                center: {lat: -34.397, lng: 150.644}  // 기본 위치 설정
+            });
+
+            // HTML5 Geolocation API를 사용하여 현재 위치 가져오기
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    var marker = new google.maps.Marker({
+                        position: pos,
+                        map: map
+                    });
+
+                    map.setCenter(pos);
+                }, function() {
+                    handleLocationError(true, map.getCenter());
+                });
+            } else {
+                // 브라우저가 Geolocation을 지원하지 않는 경우
+                handleLocationError(false, map.getCenter());
+            }
+        }
+
+        function handleLocationError(browserHasGeolocation, pos) {
+            var infoWindow = new google.maps.InfoWindow({
+                map: map,
+                position: pos,
+                content: browserHasGeolocation ?
+                         'Error: The Geolocation service failed.' :
+                         'Error: Your browser doesn\'t support geolocation.'
+            });
+            infoWindow.open(map);
+        }
+    </script>
+</head>
+<body onload="initMap()">
+    <h1>My Google Map</h1>
+    <div id="map" style="height: 500px; width: 100%;"></div>
+</body>
+</html>
