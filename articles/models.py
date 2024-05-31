@@ -1,3 +1,4 @@
+
 from django.db import models
 from accounts.models import User
 from django.conf import settings
@@ -5,7 +6,11 @@ from django.conf import settings
 # Create your models here.
 class Hashtag(models.Model):
     name = models.CharField(max_length=20, unique=True)
-    
+
+class Saved(models.Model):
+    name = models.CharField(max_length=20)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="saved")
+
 class Article(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -13,14 +18,17 @@ class Article(models.Model):
     hashtags = models.ManyToManyField(Hashtag, blank=True)
 
     # image (로컬/url)
-    # image = ...
+    image = models.ImageField(upload_to="article/images/", blank=True)
     # image_url = ...
 
     # author id
-    # author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="articles")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="articles")
 
     # likes
-    # like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name = "like_articles")
+    like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name = "like_articles")
+
+    # saved
+    saved_list = models.ManyToManyField(Saved, related_name="saved_articles")
 
 class Comment(models.Model):
     comment = models.CharField(max_length=200)
@@ -28,10 +36,10 @@ class Comment(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     # author id
-    # author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
 
     # article id
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="comments")
 
     # likes
-    # like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="like_comments")
+    like_users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="like_comments")
