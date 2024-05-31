@@ -153,7 +153,46 @@ class UserLogOut(APIView):
 class UpdateProfileView(RetrieveUpdateAPIView):
     @permission_classes([IsAuthenticated])
     def put(self, request, username):
-        # 이미지 수정, 주소 검증 추가 필요함.
+        data = request.data
+        address = data.get("address")
+        if address:
+            try:
+                city = address[0:2]
+                district = address[3:].rstrip()
+                if not district:
+                    return Response({"error": """주소는 'XX XX구/군/시' 형식이어야 합니다. 
+                                    예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
+                                    ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
+                                    수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
+            except ValueError:
+                return Response({"error": """주소는 'XX XX구/군/시' 형식이어야 합니다. 
+                                    예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
+                                    ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
+                                    수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
+
+            index_of_city = None
+            for index, (english, korean) in enumerate(REGIONS):
+                if korean == city:
+                    index_of_city = index
+                    break
+
+            if index_of_city is None:
+                return Response({"error": "유효하지 않은 시/도입니다."}, status=status.HTTP_403_FORBIDDEN)
+
+            city_eng = REGIONS[index_of_city][0]
+            regions = [region for region, _ in REGIONS]
+
+            if city_eng not in regions:
+                return Response({"error": """주소는 'XX XX구/군/시' 형식이어야 합니다. 
+                                    예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
+                                    ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
+                                    수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
+
+            if city_eng in DISTRICTS and district not in DISTRICTS[city_eng]:
+                return Response({"error": """주소는 'XX XX구/군/시' 형식이어야 합니다. 
+                                    예외) 세종특별자치시의 경우 읍/면/동으로 입력. 
+                                    ※다음 자치시들의 경우 구까지 입력. ex) XX XX시 XX구 
+                                    수원시,성남시,안양시,부천시,안산시,고양시,용인시,청주시,천안시,전주시,포항시,창원시"""}, status=status.HTTP_403_FORBIDDEN)
         serializer = UserProfileSerializer(instance=request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -163,7 +202,6 @@ class UpdateProfileView(RetrieveUpdateAPIView):
 
 
 # 회원 탈퇴기능
-
 class DeleteProfile(RetrieveDestroyAPIView):
     @permission_classes([IsAuthenticated])
     def delete(self,request,username):
