@@ -1,10 +1,14 @@
 from django.urls import path
-from articles import views
-
+from articles import views, template_views
 
 app_name = 'articles'
 
-urlpatterns = [
+template_urlpatterns = [
+    path("list/template/", template_views.article_list_template_view, name="list-template"),
+    path("<int:articleId>/template/",template_views.article_detail_template_view, name="detail-template"),
+]
+
+drf_urlpatterns = [
     # article list
     path("", views.ArticleListAPIView.as_view(),name='article_list'),
 
@@ -25,3 +29,5 @@ urlpatterns = [
     path("saved/<int:savedId>/",views.SavedDetailAPIView.as_view(),name="saved_detail"),
     path("saved/<int:savedId>/<int:articleId>/", views.ArticleSavedAPIView.as_view(), name="article_saved"),
 ]
+
+urlpatterns = drf_urlpatterns + template_urlpatterns

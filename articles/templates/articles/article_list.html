@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    #main-container {
+        background-color: lightgray;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #main-container>.article-container {
+        width: 200px;
+        height: flex;
+        background-color: white;
+        border: 1px gray solid;
+        margin-bottom: 4px;
+    }
+
+    #main-container>.article-container>.like {
+        font-size: 15px;
+    }
+
+    #main-container>.article-container>img {
+        width: 50px;
+        height: 50px;
+    }
+    </style>
+
+    <h1>ARTICLE LIST</h1>
+
+    <div id="main-container"></div>
+
+    <script>
+        $.ajax({
+            type: "GET",
+            url: "/articles/",
+            success: function (response) {
+                console.log(response)
+                const mainContainer = document.getElementById('main-container')
+                response.forEach(function (article) {
+                    const articleContainer = document.createElement('div')
+                    articleContainer.classList.add('article-container')
+                    const date = new Date(article.created_at)
+                    let articleHTML = `
+                <div class="content">${article.content}</div>
+                <div class="like">좋아요: ${article.like_count}</div>
+                <div class="hashtags"></div>
+                <div class="created-at">${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+            `;
+
+            if (article.image) {
+                articleHTML = `<img src='${article.image}'/>` + articleHTML;
+            }
+            articleHTML=`<div class="author">${article.author_username}</div>`+articleHTML
+            articleContainer.innerHTML = articleHTML;
+                    mainContainer.appendChild(articleContainer)
+                    const hashtagsContainer = articleContainer.querySelector('.hashtags');
+            article.hashtags.forEach(function (hashtag) {
+                const hashtagElement = document.createElement('span');
+                hashtagElement.classList.add('hashtag');
+                hashtagElement.textContent = `#${hashtag.name} `;
+                hashtagsContainer.appendChild(hashtagElement);
+            });
+                })
+            },
+        });
+    </script>
+{% endblock %}
