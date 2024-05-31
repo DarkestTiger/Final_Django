@@ -153,6 +153,7 @@ class UserLogOut(APIView):
 class UpdateProfileView(RetrieveUpdateAPIView):
     @permission_classes([IsAuthenticated])
     def put(self, request, username):
+        # 이미지 수정, 주소 검증 추가 필요함.
         serializer = UserProfileSerializer(instance=request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()

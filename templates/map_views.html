@@ -1,16 +1,17 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Maps Example</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places"></script>
     <script>
         function initMap() {
             var map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 12,
                 center: {lat: -34.397, lng: 150.644}  // 기본 위치 설정
             });
+
+            var geocoder = new google.maps.Geocoder();
 
             // HTML5 Geolocation API를 사용하여 현재 위치 가져오기
             if (navigator.geolocation) {
@@ -26,6 +27,8 @@
                     });
 
                     map.setCenter(pos);
+
+                    geocodeLatLng(geocoder, map, pos);
                 }, function() {
                     handleLocationError(true, map.getCenter());
                 });
@@ -35,9 +38,29 @@
             }
         }
 
+        function geocodeLatLng(geocoder, map, latlng) {
+            geocoder.geocode({'location': latlng}, function(results, status) {
+                if (status === 'OK') {
+                    if (results[0]) {
+                        var infowindow = new google.maps.InfoWindow({
+                            content: results[0].formatted_address
+                        });
+                        infowindow.open(map, new google.maps.Marker({
+                            position: latlng,
+                            map: map
+                        }));
+                        document.getElementById('address').textContent = results[0].formatted_address;
+                    } else {
+                        window.alert('No results found');
+                    }
+                } else {
+                    window.alert('Geocoder failed due to: ' + status);
+                }
+            });
+        }
+
         function handleLocationError(browserHasGeolocation, pos) {
             var infoWindow = new google.maps.InfoWindow({
-                map: map,
                 position: pos,
                 content: browserHasGeolocation ?
                          'Error: The Geolocation service failed.' :
@@ -50,5 +73,6 @@
 <body onload="initMap()">
     <h1>My Google Map</h1>
     <div id="map" style="height: 500px; width: 100%;"></div>
+    <div id="address" style="margin-top: 20px;">Address: Loading...</div>
 </body>
 </html>
