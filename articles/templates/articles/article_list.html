@@ -45,6 +45,7 @@
     <div id="main-container"></div>
 
     <script>
+        const UserId = "{{ request.user.id }}";
         $.ajax({
             type: "GET",
             url: "/articles/",
@@ -72,17 +73,39 @@
             else{
                 articleHTML=`<div class="author"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> ${article.author_username}</div>`+articleHTML
             }
+            if (article.author == UserId) {
+                            articleHTML = articleHTML+`<div class="update"><a href="/articles/${article.id}/update/template/">수정</a> <a href="#" onclick="deleteArticle(${article.id}); return false;">삭제</a></div>`;
+                        }
+
             articleContainer.innerHTML = articleHTML;
                     mainContainer.appendChild(articleContainer)
                     const hashtagsContainer = articleContainer.querySelector('.hashtags');
+            console.log(article.hashtags)
             article.hashtags.forEach(function (hashtag) {
-                const hashtagElement = document.createElement('span');
-                hashtagElement.classList.add('hashtag');
-                hashtagElement.textContent = `#${hashtag.name} `;
-                hashtagsContainer.appendChild(hashtagElement);
-            });
+    if (hashtag.name.trim() !== '') {
+        const hashtagElement = document.createElement('span');
+        hashtagElement.classList.add('hashtag');
+        hashtagElement.textContent = `#${hashtag.name} `;
+        hashtagsContainer.appendChild(hashtagElement);
+    }
+});
                 })
             },
         });
+        function deleteArticle(articleId) {
+    if (confirm("게시글을 삭제하시겠습니까?")) {
+        $.ajax({
+            type: "DELETE",
+            url: `/articles/${articleId}/`,
+            success: function(response) {
+                alert("게시글이 삭제되었습니다.");
+                location.href = '/articles/list/template/';
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("게시글 삭제에 실패했습니다. 다시 시도해주세요.");
+            }
+        });
+    }
+}
     </script>
 {% endblock %}

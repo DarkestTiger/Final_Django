@@ -32,9 +32,9 @@ class ArticleListAPIView(APIView):
         if not content:
             return Response({"error": "content is required"}, status=400)
 
-        # article = Article.objects.create(author=request.user, content=content, image=image)
-        author=get_object_or_404(User, username='gozzun')
-        article = Article.objects.create(author=author, content=content, image=image)
+        article = Article.objects.create(author=request.user, content=content, image=image)
+        # author=get_object_or_404(User, username='gozzun')
+        # article = Article.objects.create(author=author, content=content, image=image)
 
         for name in hashtags.split(','):
             hashtag, _ = Hashtag.objects.get_or_create(name=name)
@@ -65,7 +65,7 @@ class ArticleDetailAPIView(APIView):
         content = request.data.get("content", None)
         # ','로 해시태그 구분 가능 ex) hashtags = "안녕,반가워"
         hashtags = request.data.get("hashtags", "")
-        image = request.data.get("image", None)
+        image = request.data.get("image")
 
         if content is not None:
             article.content = content
@@ -120,9 +120,9 @@ class CommentListAPIView(APIView):
             if not comment.strip():
                 return Response({"error": "Comment cannot be empty"}, status=status.HTTP_403_FORBIDDEN)
             
-            author=get_object_or_404(User, username='gozzun')
-            # serializer.save(author=request.user, article=article)
-            serializer.save(author=author, article=article)
+            # author=get_object_or_404(User, username='gozzun')
+            serializer.save(author=request.user, article=article)
+            # serializer.save(author=author, article=article)
             # serializer.save(article=article)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)

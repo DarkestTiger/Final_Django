@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% block title %}
+<title>게시글 수정</title>
+{% endblock title %}
+<h1>ARTICLE UPDATE</h1>
+    <a class="nav-link" href="{% url 'articles:list-template'%}">목록으로 돌아가기</a>
+    <form onsubmit="updateArticle(event)">
+        <textarea name="content" id="" cols="30" rows="10" placeholder='내용을 입력해주세요.' required>{{ article.content }}</textarea>
+        <br>
+        <input name="hashtags" type="text" value="{% for hashtag in article.hashtags.all %}{{ hashtag.name }}{% if not forloop.last %},{% endif %}{% endfor %}" placeholder="ex) 오운완,상체,하체">
+        <br>
+        {% if article.image %}
+        <br>
+        <img id="imgPreview" src="{{ article.image.url }}" alt="Current Image" style="max-width: 200px; max-height: 200px;">
+        {% endif %}
+        <br>
+        <input name="image" accept="image/*" type="file" onchange="document.getElementById('imgPreview').src = window.URL.createObjectURL(this.files[0]);">
+    <br>
+    <br>
+        <button>게시글 수정</button>
+    </form>
+
+    <script>
+        function updateArticle(event) {
+            event.preventDefault();
+            
+            var formData = new FormData(event.target);
+            
+            var imageInput = document.querySelector('input[name="image"]');
+            if (!imageInput.files[0]) {
+                formData.delete('image');
+            }
+    
+            $.ajax({
+                type: "PUT",
+                url: "/articles/{{ articleId }}/",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    location.href = '/articles/list/template/';
+                }
+            });
+        }
+    </script>
+    
+{% endblock %}

@@ -50,7 +50,6 @@
 
 {% if request.user.is_authenticated %}
     <form onsubmit="createArticleComment(event)">
-        <br>
         <input name="comment" type="text" placeholder="댓글을 입력해주세요." required>
         <br>
         <button type="submit">댓글 작성</button>
@@ -85,11 +84,13 @@
             const articleContainer = document.createElement('div');
             articleContainer.classList.add('article-container');
             const date = new Date(article.created_at)
+            const up_date = new Date(article.updated_at)
             let articleHTML = `
             <div class="content">${article.content}</div>
             <div class="like">좋아요: ${article.like_count}</div>
             <div class="hashtags"></div>
-            <div class="created-at">${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+            <div class="created-at">작성일: ${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+            <div class="updated-at">수정일: ${up_date.getFullYear()}-${up_date.getMonth()+1}-${up_date.getDate()}</div>
         `;
 
         if (article.image) {
@@ -101,17 +102,23 @@
             else{
                 articleHTML=`<div class="author"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> ${article.author_username}</div>`+articleHTML
             }
+            if (article.author == UserId) {
+                            articleHTML = articleHTML+`<div class="update-delete"><a href="/articles/${article.id}/update/template/">수정</a> <a href="#" onclick="deleteArticle(${article.id}); return false;">삭제</a></div>`;
+                        }
         articleContainer.innerHTML = articleHTML;
             mainContainer.appendChild(articleContainer);
             const hashtagsContainer = articleContainer.querySelector('.hashtags');
             article.hashtags.forEach(function (hashtag) {
-                const hashtagElement = document.createElement('span');
-                hashtagElement.classList.add('hashtag');
-                hashtagElement.textContent = `#${hashtag.name} `;
-                hashtagsContainer.appendChild(hashtagElement);
-            });
+    if (hashtag.name.trim() !== '') {
+        const hashtagElement = document.createElement('span');
+        hashtagElement.classList.add('hashtag');
+        hashtagElement.textContent = `#${hashtag.name} `;
+        hashtagsContainer.appendChild(hashtagElement);
+    }
+});
         },
     });
+    const UserId = "{{ request.user.id }}";
     $.ajax({
                 type: "GET",
                 url: `/articles/{{ articleId }}/comment/`,
@@ -126,6 +133,8 @@
                             <div class="content">${comment.comment}</div>
                             <div class="like">좋아요: ${comment.like_count}</div>
                             <div class="created-at">${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+                            <div class="comment"><a href="/articles/comment/${comment.id}/template/">댓글 자세히 보기</a></div>
+                            <br>
                         `;
                         if (comment.author_profile_img) {
                             commentContainer.innerHTML=`<div class="author"><img src='${comment.author_profile_img}' class="comment-profile-img"/> ${comment.author_username}</div>`+commentContainer.innerHTML
@@ -139,5 +148,20 @@
             });
 
         });
+        function deleteArticle(articleId) {
+    if (confirm("게시글을 삭제하시겠습니까?")) {
+        $.ajax({
+            type: "DELETE",
+            url: `/articles/${articleId}/`,
+            success: function(response) {
+                alert("게시글이 삭제되었습니다.");
+                location.href = '/articles/list/template/';
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("게시글 삭제에 실패했습니다. 다시 시도해주세요.");
+            }
+        });
+    }
+}
 </script>
 {% endblock %}

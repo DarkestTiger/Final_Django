@@ -53,7 +53,7 @@
             },
             success: function(response) {
                 console.log("success : ",response);
-                location.href=""
+                location.href="{% url 'articles:list-template'%}"
             },
             error: function(error) {
                 console.log("error : ",error);

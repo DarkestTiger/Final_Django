@@ -14,7 +14,7 @@ templates_urlpatterns = [
     path("login/", templates_views.login, name='login'),
     path("profile/", templates_views.profile, name='profile'),
     path("profile/modify/", templates_views.modify, name='modify'),
-    path("delete/", templates_views.delete, name='delete'),
+    path("delete", templates_views.delete, name='signup'),
 ]
 
 drf_urlpatterns = [ 
@@ -26,8 +26,7 @@ drf_urlpatterns = [
     path("auth/<str:username>/modify/", views.UpdateProfileView.as_view(), name='api_modify'),
     path("auth/<str:username>/delete/", views.DeleteProfile.as_view(), name='api_profile'),
     path("auth/<str:username>/follow/", views.UserFollow.as_view(), name='api_follow'),
-    path('submit-address/', views.submit_address, name='submit_address'),
-    path('map/', views.map_view, name='map_view') # 구글 지도 view    
+    path('map/', views.map_view, name='map_view') # 구글 지도 view
 ]
 
 urlpatterns = drf_urlpatterns + templates_urlpatterns

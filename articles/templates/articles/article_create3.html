@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% block title %}
+<title>게시글 작성</title>
+{% endblock title %}
     <h1>ARTICLE CREATE</h1>
     <a class="nav-link" href="{% url 'articles:list-template'%}">목록으로 돌아가기</a>
     <form onsubmit="createArticle(event)">
