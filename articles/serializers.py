@@ -28,6 +28,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     author_username = serializers.ReadOnlyField(source='author.username')
     like_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
     hashtags = HashtagSerializer(many=True)
     image = serializers.ImageField(use_url=True)
     class Meta:
@@ -42,6 +43,8 @@ class ArticleSerializer(serializers.ModelSerializer):
         return ret
     def get_like_count(self, instance):
         return instance.like_users.count()
+    def get_comments_count(self, instance):
+        return instance.comments.count()
 
 class ArticleDetailSerializer(ArticleSerializer):
     comments = CommentSerializer(many=True, read_only=True)

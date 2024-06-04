@@ -1,7 +1,15 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
 <style>
+    .profile-img {
+        width: 15px;
+        height: 15px;
+    }
+    .comment-profile-img{
+        width: 15px;
+        height: 15px;
+    }
     #main-container {
         background-color: lightgray;
         display: flex;
@@ -25,13 +33,46 @@
         height: 50px;
     }
 </style>
-
+{% block title %}
+<title>오.운.완</title>
+{% endblock title %}
 <h1>ARTICLE DETAIL</h1>
+{% if request.user.is_authenticated %}
+    <h2>{{ request.user }}</h2>
+{% else %}
+    <a class="nav-link" href="{% url 'accounts:login' %}">로그인</a>
+{% endif %}
+
+<a class="nav-link" href="{% url 'articles:list-template'%}">목록</a>
 
 <div id="main-container"></div>
 <div id="comments-container"></div>
 
+{% if request.user.is_authenticated %}
+    <form onsubmit="createArticleComment(event)">
+        <br>
+        <input name="comment" type="text" placeholder="댓글을 입력해주세요." required>
+        <br>
+        <button type="submit">댓글 작성</button>
+    </form>
+{% endif %}
 <script>
+    function createArticleComment(event) {
+        event.preventDefault();
+        console.log('댓글 작성')
+        $.ajax({
+            type: 'POST',
+            url: '/articles/{{ articleId }}/comment/',
+            data: new FormData(event.target),
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                location.reload();
+            }
+        })
+        return false
+    }
+
     $(document).ready(function () {
     $.ajax({
         type: "GET",
@@ -54,7 +95,12 @@
         if (article.image) {
             articleHTML = `<img src='${article.image}'/>` + articleHTML;
         }
-        articleHTML=`<div class="author">${article.author_username}</div>`+articleHTML
+        if (article.author_profile_img) {
+                articleHTML=`<div class="author"><img src='${article.author_profile_img}' class="profile-img"/> ${article.author_username}</div>`+articleHTML
+            }
+            else{
+                articleHTML=`<div class="author"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> ${article.author_username}</div>`+articleHTML
+            }
         articleContainer.innerHTML = articleHTML;
             mainContainer.appendChild(articleContainer);
             const hashtagsContainer = articleContainer.querySelector('.hashtags');
@@ -77,15 +123,21 @@
                         commentContainer.classList.add('comment-container');
                         const date = new Date(comment.created_at)
                         commentContainer.innerHTML = `
-                            <div class="author">${comment.author_username}</div>
                             <div class="content">${comment.comment}</div>
                             <div class="like">좋아요: ${comment.like_count}</div>
                             <div class="created-at">${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
                         `;
+                        if (comment.author_profile_img) {
+                            commentContainer.innerHTML=`<div class="author"><img src='${comment.author_profile_img}' class="comment-profile-img"/> ${comment.author_username}</div>`+commentContainer.innerHTML
+            }
+            else{
+                commentContainer.innerHTML=`<div class="author"><img src="{% static 'accounts/user.png' %}" class="comment-profile-img"/> ${comment.author_username}</div>`+commentContainer.innerHTML
+            }
                         commentsContainer.appendChild(commentContainer);
                     });
                 },
             });
-    });
+
+        });
 </script>
 {% endblock %}
