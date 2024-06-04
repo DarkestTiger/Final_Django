@@ -1,8 +1,6 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.generics import RetrieveUpdateAPIView, RetrieveDestroyAPIView
 
@@ -10,6 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 
 from django.conf import settings  # 구글 위치 API
 from django.http import JsonResponse  # 구글 위치 API
+from django.views.decorators.csrf import csrf_exempt # 구글 위치 API
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import get_user_model, login, logout
 from django.shortcuts import get_object_or_404, render
@@ -24,6 +23,7 @@ from .serializers import UserSerializer, UserProfileSerializer
 from .regions import REGIONS, DISTRICTS
 
 import googlemaps  # 구글 위치 API
+import json
 
 
 # 회원가입 기능
@@ -110,9 +110,9 @@ class UserSignUp(APIView):
 
 # 로그인 기능
 class UserLogIn(APIView):
-    def post(self, request):
-        username = request.data["username"]
-        password = request.data["password"]
+    def post(self,request):
+        username = request.data.get('username')
+        password = request.data.get('password')
         user = User.objects.filter(username=username).first()
         if user is None:
             return Response({"message": "존재하지 않는 아이디입니다."}, status=status.HTTP_400_BAD_REQUEST)
@@ -308,6 +308,15 @@ def get_location_data(request):
     location = geocode_result[0]['geometry']['location']
     return JsonResponse(location)
 
+@csrf_exempt
+def submit_address(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        address = data.get('address')
+        print('받은 주소 정보:', address)
+        # 주소 정보를 처리하는 로직 추가
+        return JsonResponse({'message': '주소 정보가 성공적으로 수신되었습니다.', 'address': address})
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
 def map_view(request):
     context = {
