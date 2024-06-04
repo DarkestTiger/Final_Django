@@ -1,23 +1,18 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
 
 def article_list_template_view(request):
-    bear_list = [
-        {
-            "name": "아빠곰",
-            "tags": ["아빠"],
-        },
-        {
-            "name": "엄마곰",
-            "tags": ["엄마"],
-        },
-        {
-            "name": "애기곰",
-            "tags": ["애기"],
-        },
-    ]
-
-    bear_list = ["사나운곰"]
-
     return render(request, "articles/article_list.html")
 
+
+@login_required
+def article_create_template_view(request):
+    return render(request, "articles/article_create4.html")
+
+
+def article_detail_template_view(request, articleId):
+    context = {
+        "articleId": articleId
+    }
+    return render(request, "articles/article_detail.html", context)

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>ARTICLE CREATE2</h1>
+
+    <textarea name="content" id="content-input" cols="30" rows="10"
+              placeholder="내용을 입력해주세요"></textarea>
+    <br>
+    <input name="hashtags" id="hashtags-input" type="text" placeholder="해시태그를 입력해주세요">
+    <br>
+    <p id="error-container"></p>
+    <button onclick="createArticle()">게시글 업로드</button>
+
+    <script>
+        function createArticle() {
+            console.log('게시글 업로드')
+            const contentTextarea = document.getElementById('content-input')
+            const hashtagsInput = document.getElementById('hashtags-input')
+
+            $.ajax({
+                type: 'POST',
+                url: '/articles/',
+                data: {
+                    content: contentTextarea.value,
+                    hashtags: hashtagsInput.value,
+                },
+                success() {
+                    {# 준승 : 입력을 해서 제출까지 했는데 입력창에 남아있는게 문제 #}
+                    {#contentTextarea.value = ''#}
+                    {#hashtagsInput.value = ''#}
+                    {#location.href = '/articles/create/template/'#}
+                    location.reload()
+                    {#location.href = '/articles/list/template/'#}
+                },
+                error(e) {
+                    document.getElementById('error-container').innerText = e.responseJSON.error
+                }
+            })
+        }
+    </script>
+{% endblock %}

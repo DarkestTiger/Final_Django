@@ -1,31 +1,32 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <style>
-        #main-container {
-            background-color: lightgray;
-            display: flex;
-            flex-direction: column;
-        }
+<style>
+    #main-container {
+        background-color: lightgray;
+        display: flex;
+        flex-direction: column;
+    }
 
-        #main-container > .article-container {
-            width: 100px;
-            height: 100px;
-            background-color: white;
-            border: 1px gray solid;
-            margin-bottom: 4px;
-        }
-        #main-container > .article-container > .like {
-            font-size: 8px;
-        }
+    #main-container>.article-container {
+        width: 200px;
+        height: flex;
+        background-color: white;
+        border: 1px gray solid;
+        margin-bottom: 4px;
+    }
 
-        #main-container > .article-container > img {
-            width: 50px;
-            height: 50px;
-        }
+    #main-container>.article-container>.like {
+        font-size: 15px;
+    }
+
+    #main-container>.article-container>img {
+        width: 50px;
+        height: 50px;
+    }
     </style>
 
-    <h1>ARTICLE LIST</h1>
+    <h1>ARTICLE LIST {{ request.user }}</h1>
 
     <div id="main-container"></div>
 
@@ -39,14 +40,27 @@
                 response.forEach(function (article) {
                     const articleContainer = document.createElement('div')
                     articleContainer.classList.add('article-container')
+                    const date = new Date(article.created_at)
+                    let articleHTML = `
+                <div class="content">${article.content}</div>
+                <div class="like">좋아요: ${article.like_count}</div>
+                <div class="hashtags"></div>
+                <div class="created-at">${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+            `;
 
-                    articleContainer.innerHTML = `
-                        <img src='${article.image}'/>
-                        <div class="content">${article.content}</div>
-                        <div class="like">${article.like_count}</div>
-                        <div class="created-at">${article.created_at}</div>
-                    `
+            if (article.image) {
+                articleHTML = `<img src='${article.image}'/>` + articleHTML;
+            }
+            articleHTML=`<div class="author">${article.author_username}</div>`+articleHTML
+            articleContainer.innerHTML = articleHTML;
                     mainContainer.appendChild(articleContainer)
+                    const hashtagsContainer = articleContainer.querySelector('.hashtags');
+            article.hashtags.forEach(function (hashtag) {
+                const hashtagElement = document.createElement('span');
+                hashtagElement.classList.add('hashtag');
+                hashtagElement.textContent = `#${hashtag.name} `;
+                hashtagsContainer.appendChild(hashtagElement);
+            });
                 })
             },
         });

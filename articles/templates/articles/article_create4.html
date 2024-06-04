@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>ARTICLE CREATE4 - </h1>
+    <form onsubmit="update(event)">
+        <input name="email" type="text" value="{{ user.email }}">
+        <br>
+        <input name="address" type="text" value="{{ user.address }}">
+        <br>
+        <button>프로필 수정</button>
+    </form>
+
+    <script>
+        function update(event) {
+            event.preventDefault();
+            console.log('게시글 업로드')
+            $.ajax({
+                type: 'PUT',
+                url: '/accounts/auth/{{ user.username }}/modify/',
+                data: new FormData(event.target),
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    location.reload()
+                },
+                error: function(e) {
+                    console.log(e.responseJSON)
+                }
+            })
+        }
+    </script>
+{% endblock %}
