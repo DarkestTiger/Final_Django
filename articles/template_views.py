@@ -12,8 +12,12 @@ def article_create_template_view(request):
 
 
 def article_detail_template_view(request, articleId):
+    article = get_object_or_404(Article, pk=articleId)
+    like_users = article.like_users.all()
     context = {
-        "articleId": articleId
+        "articleId": articleId,
+        "article": article,
+        "like_users":like_users
     }
     return render(request, "articles/article_detail.html", context)
 
@@ -28,8 +32,10 @@ def article_update_template_view(request, articleId):
 
 def comment_detail_view(request, commentId):
     comment = get_object_or_404(Comment, pk=commentId)
+    like_users = comment.like_users.all()
     context={
         "comment": comment,
-        "commentId": commentId
+        "commentId": commentId,
+        "like_users": like_users
     }
     return render(request, "articles/comment_detail.html", context)

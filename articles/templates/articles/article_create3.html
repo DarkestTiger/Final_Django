@@ -11,7 +11,9 @@
         <br>
         <input name="hashtags" type="text" placeholder="ex) 오운완,상체,하체">
         <br>
-        <input name="image" accept="image/*" type="file" required>
+        <img id="imgPreview" style="max-width: 200px; max-height: 200px;">
+        <br>
+        <input name="image" accept="image/*" type="file" onchange="document.getElementById('imgPreview').src = window.URL.createObjectURL(this.files[0]);" required>
         <br>
         <button>게시글 업로드</button>
     </form>

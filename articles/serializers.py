@@ -20,7 +20,6 @@ class CommentSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret.pop("article")
-        ret.pop("like_users")
         return ret
     def get_like_count(self, instance):
         return instance.like_users.count()
@@ -38,7 +37,6 @@ class ArticleSerializer(serializers.ModelSerializer):
         # image도 마찬가지, views.py에서 처리
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret.pop("like_users")
         ret.pop("saved_list")
         return ret
     def get_like_count(self, instance):

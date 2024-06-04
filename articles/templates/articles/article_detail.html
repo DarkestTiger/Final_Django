@@ -46,6 +46,16 @@
 <a class="nav-link" href="{% url 'articles:list-template'%}">목록</a>
 
 <div id="main-container"></div>
+<div id="like-users">좋아요를 누른 유저: 
+    {% for user in like_users %}
+        {% if user.profile_img %}
+            <img src="{{ user.profile_img.url }}" class="profile-img"/> {{ user.username }} 
+        {% else %}
+            <img src="{% static 'accounts/user.png' %}" class="profile-img"/> {{ user.username }} 
+        {% endif %}
+    {% endfor %}
+</div>
+<br>
 <div id="comments-container"></div>
 
 {% if request.user.is_authenticated %}
@@ -71,7 +81,32 @@
         })
         return false
     }
+    function likeArticle(articleId) {
+            $.ajax({
+            type: "POST",
+            url: `/articles/${articleId}/like/`,
+            success: function(response) {
+                location.reload();
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("좋아요 실패");
+            }
+        });
+        }
 
+        function dislikeArticle(articleId) {
+            $.ajax({
+            type: "DELETE",
+            url: `/articles/${articleId}/like/`,
+            success: function(response) {
+                location.reload();
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("좋아요 취소 실패");
+            }
+        });
+        }
+    const UserId = "{{ request.user.id }}";
     $(document).ready(function () {
     $.ajax({
         type: "GET",
@@ -87,11 +122,23 @@
             const up_date = new Date(article.updated_at)
             let articleHTML = `
             <div class="content">${article.content}</div>
-            <div class="like">좋아요: ${article.like_count}</div>
+            <div class="like">
+                <a href="#" onclick="${isLiked(article)? `dislikeArticle(${article.id});` : `likeArticle(${article.id});`} return false;">
+                ${isLiked(article) ? '좋아요 취소' : '좋아요'}
+                </a>: ${article.like_count}개
+            </div>
             <div class="hashtags"></div>
             <div class="created-at">작성일: ${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
             <div class="updated-at">수정일: ${up_date.getFullYear()}-${up_date.getMonth()+1}-${up_date.getDate()}</div>
         `;
+
+        function isLiked(article) {
+            return article.like_users.includes(parseInt(UserId));
+        }
+        console.log(article.like_users)
+        console.log(UserId)
+        console.log(isLiked(article))
+        console.log(isLiked(article) ? '좋아요 취소' : '좋아요')
 
         if (article.image) {
             articleHTML = `<img src='${article.image}'/>` + articleHTML;
@@ -118,7 +165,7 @@
 });
         },
     });
-    const UserId = "{{ request.user.id }}";
+
     $.ajax({
                 type: "GET",
                 url: `/articles/{{ articleId }}/comment/`,
@@ -131,7 +178,7 @@
                         const date = new Date(comment.created_at)
                         commentContainer.innerHTML = `
                             <div class="content">${comment.comment}</div>
-                            <div class="like">좋아요: ${comment.like_count}</div>
+                            <div class="like">좋아요: ${comment.like_count}개</div>
                             <div class="created-at">${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
                             <div class="comment"><a href="/articles/comment/${comment.id}/template/">댓글 자세히 보기</a></div>
                             <br>
