@@ -14,14 +14,14 @@ templates_urlpatterns = [
     path("login/", templates_views.login, name='login'),
     path("profile/", templates_views.profile, name='profile'),
     path("profile/modify/", templates_views.modify, name='modify'),
-    path("delete", templates_views.delete, name='signup'),
+    path("delete/", templates_views.delete, name='delete'),
 ]
 
 drf_urlpatterns = [ path("auth/signup/", views.UserSignUp.as_view(), name='api_signup'),
     path("auth/login/", views.UserLogIn.as_view(), name='api_logout'),
     path("auth/logout/", views.UserLogOut.as_view(), name='api_logout'),
     path("auth/<str:username>/", views.user_profile, name='api_profile'),
-    path("auth/modify", views.UpdateProfileView.as_view(), name='api_modify'),
+    path("auth/<str:username>/modify", views.UpdateProfileView.as_view(), name='api_modify'),
     path("auth/<str:username>/delete/", views.DeleteProfile.as_view(), name='api_profile'),
     path("auth/<str:username>/follow/", views.UserFollow.as_view(), name='api_follow'),
 ]
