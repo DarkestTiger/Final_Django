@@ -6,4 +6,24 @@
 
 {% block content %}
 
+<script>
+    function update(event) {
+        event.preventDefault();
+        console.log('게시글 업로드')
+        $.ajax({
+            type: 'PUT',
+            url: '/accounts/auth/{{ user.username }}/modify/',
+            data: new FormData(event.target),
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                location.reload()
+            },
+            error: function(e) {
+                console.log(e.responseJSON)
+            }
+        })
+    }
+</script>
+
 {% endblock content %}

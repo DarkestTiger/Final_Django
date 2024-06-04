@@ -1,8 +1,6 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.generics import RetrieveUpdateAPIView, RetrieveDestroyAPIView
 
@@ -112,9 +110,9 @@ class UserSignUp(APIView):
 
 # 로그인 기능
 class UserLogIn(APIView):
-    def post(self, request):
-        username = request.data["username"]
-        password = request.data["password"]
+    def post(self,request):
+        username = request.data.get('username')
+        password = request.data.get('password')
         user = User.objects.filter(username=username).first()
         if user is None:
             return Response({"message": "존재하지 않는 아이디입니다."}, status=status.HTTP_400_BAD_REQUEST)

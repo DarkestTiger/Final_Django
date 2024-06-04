@@ -1,9 +1,64 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}
 <title>회원가입</title>
 {% endblock title %}
 
 {% block content %}
-
+<div id="main-container" class="container">  
+    <div class="box">
+      <img src="{% static 'images\logo.png' %}" alt="오운완" />
+    </div>
+    <div class="app">
+      <div class="title">
+          <h1 style="text-align: center;font-weight: 700;margin-top: 20%;">회원가입</h1>
+        </div>
+          <form>
+              {% csrf_token %}
+              <div class="username">
+                  <input
+                  type="text"
+                  id="username"
+                  placeholder="사용자명"
+                  name="username"
+                  />
+              </div>
+              <br>
+              <div class="pw">
+                  <input
+                  type="password"
+                  id="password"
+                  placeholder="비밀번호"
+                  name="password"
+                  />
+              </div>
+              <br>
+              <div class="email">
+                <input type="text"
+                id="email"
+                placeholder="이메일"
+                name="email">
+              </div>
+              <br>
+              <div class="introduce">
+                <textarea id="introduce"
+                placeholder="자기소개를 입력해주세요."
+                name="introduce"></textarea>
+              </div>
+              <br>
+              <div class="address">
+                <select name="mainCategory" style="width:200px">
+                  <option value="">전체</option>
+                </select>
+                <select name="subCategory" style="width:200px">
+                  <option value="">전체</option>
+                </select>
+              </div>
+              <br>
+              <button type="button" id="submit" onclick="clickhandler()">회원가입</button>
+          </form>
+    </div>
+</div>
+<script type="module" src="{% static 'js/region.js' %}"></script>
 {% endblock content %}

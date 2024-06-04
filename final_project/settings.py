@@ -97,17 +97,8 @@ AUTH_USER_MODEL = 'accounts.User'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
 ],
-}
-
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=300), # 테스트를 위해 3 -> 300분으로 바꿔놓았음.
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=500), # 테스트를 위해 5 -> 500분으로 바꿔놓았음.
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": False,
-    "JWT_SECRET_KEY": SECRET_KEY
 }
 
 # Password validation
@@ -145,7 +136,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "static"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
