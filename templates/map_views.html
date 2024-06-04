@@ -6,6 +6,24 @@
     <title>Google Maps Example</title>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places"></script>
     <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
         function initMap() {
             var map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 12,
@@ -52,6 +70,11 @@
                             map: map
                         }));
                         document.getElementById('address').textContent = formattedAddress;
+                        document.getElementById('shareLocation').addEventListener('change', function() {
+                            if (this.checked) {
+                                sendAddressToBackend(formattedAddress);
+                            }
+                        });
                     } else {
                         window.alert('No results found');
                     }
@@ -117,11 +140,35 @@
             // 변환된 주소 반환
             return parts[1] + ' ' + parts[2];
         }
+
+        async function sendAddressToBackend(address) {
+            try {
+                const response = await fetch('/accounts/submit-address/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({ address: address })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('주소 정보 전송 성공:', result);
+                } else {
+                    console.error('주소 정보 전송 실패:', response.statusText);
+                }
+            } catch (error) {
+                console.error('주소 정보 전송 중 오류 발생:', error);
+            }
+        }
     </script>
 </head>
 <body onload="initMap()">
     <h1>My Google Map</h1>
     <div id="map" style="height: 500px; width: 100%;"></div>
     <div id="address" style="margin-top: 20px;">Address: Loading...</div>
+    <label for="shareLocation">위치 공유 동의</label>
+    <input type="checkbox" id="shareLocation">
 </body>
 </html>
