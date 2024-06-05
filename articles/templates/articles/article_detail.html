@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    #main-container {
+        background-color: lightgray;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #main-container>.article-container {
+        width: 200px;
+        height: flex;
+        background-color: white;
+        border: 1px gray solid;
+        margin-bottom: 4px;
+    }
+
+    #main-container>.article-container>.like {
+        font-size: 15px;
+    }
+
+    #main-container>.article-container>img {
+        width: 50px;
+        height: 50px;
+    }
+</style>
+
+<h1>ARTICLE DETAIL</h1>
+
+<div id="main-container"></div>
+<div id="comments-container"></div>
+
+<script>
+    $(document).ready(function () {
+    $.ajax({
+        type: "GET",
+        url: "/articles/{{ articleId }}/",
+        success: function (response) {
+            console.log(response);
+            const mainContainer = document.getElementById('main-container');
+
+            const article = response;
+            const articleContainer = document.createElement('div');
+            articleContainer.classList.add('article-container');
+            const date = new Date(article.created_at)
+            let articleHTML = `
+            <div class="content">${article.content}</div>
+            <div class="like">좋아요: ${article.like_count}</div>
+            <div class="hashtags"></div>
+            <div class="created-at">${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+        `;
+
+        if (article.image) {
+            articleHTML = `<img src='${article.image}'/>` + articleHTML;
+        }
+        articleHTML=`<div class="author">${article.author_username}</div>`+articleHTML
+        articleContainer.innerHTML = articleHTML;
+            mainContainer.appendChild(articleContainer);
+            const hashtagsContainer = articleContainer.querySelector('.hashtags');
+            article.hashtags.forEach(function (hashtag) {
+                const hashtagElement = document.createElement('span');
+                hashtagElement.classList.add('hashtag');
+                hashtagElement.textContent = `#${hashtag.name} `;
+                hashtagsContainer.appendChild(hashtagElement);
+            });
+        },
+    });
+    $.ajax({
+                type: "GET",
+                url: `/articles/{{ articleId }}/comment/`,
+                success: function (comment) {
+                    console.log(comment)
+                    const commentsContainer = document.getElementById('comments-container');
+                    comment.forEach(function (comment) {
+                        const commentContainer = document.createElement('div');
+                        commentContainer.classList.add('comment-container');
+                        const date = new Date(comment.created_at)
+                        commentContainer.innerHTML = `
+                            <div class="author">${comment.author_username}</div>
+                            <div class="content">${comment.comment}</div>
+                            <div class="like">좋아요: ${comment.like_count}</div>
+                            <div class="created-at">${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+                        `;
+                        commentsContainer.appendChild(commentContainer);
+                    });
+                },
+            });
+    });
+</script>
+{% endblock %}

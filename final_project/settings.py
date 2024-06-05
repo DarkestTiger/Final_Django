@@ -101,14 +101,6 @@ REST_FRAMEWORK = {
 ],
 }
 
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=300), # 테스트를 위해 3 -> 300분으로 바꿔놓았음.
-    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=500), # 테스트를 위해 5 -> 500분으로 바꿔놓았음.
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": False,
-    "JWT_SECRET_KEY": SECRET_KEY
-}
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -154,3 +146,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+GOOGLE_MAPS_API_KEY = 'AIzaSyDRKB5eKYSPCf7lbPEtfb8rCyzJjohX6NE' # 구글 위치 API

@@ -12,6 +12,7 @@ class HashtagSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     like_count = serializers.SerializerMethodField()
+    author_username = serializers.ReadOnlyField(source='author.username')
     class Meta:
         model = Comment
         fields = "__all__"
@@ -25,6 +26,7 @@ class CommentSerializer(serializers.ModelSerializer):
         return instance.like_users.count()
 
 class ArticleSerializer(serializers.ModelSerializer):
+    author_username = serializers.ReadOnlyField(source='author.username')
     like_count = serializers.SerializerMethodField()
     hashtags = HashtagSerializer(many=True)
     image = serializers.ImageField(use_url=True)

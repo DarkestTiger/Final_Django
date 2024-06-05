@@ -1,11 +1,12 @@
 from django.urls import path
 from articles import views, template_views
 
-
 app_name = 'articles'
 
 template_urlpatterns = [
-    path("list/template/", template_views.article_list_template_view, name="list-template")
+    path("list/template/", template_views.article_list_template_view, name="list-template"),
+    path("create/template/", template_views.article_create_template_view, name="create-template"),
+    path("<int:articleId>/template/",template_views.article_detail_template_view, name="detail-template"),
 ]
 
 drf_urlpatterns = [
