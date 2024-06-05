@@ -29,9 +29,9 @@
                 />
             </div>
             <br>
-            <button type="button" id="submit" onclick="clickhandler()">로그인</button>
+            <button type="button" class="submit" onclick="clickhandler()">로그인</button>
             <hr style="width:100%;height:4px;border:none;background-color:#141414;">
-            <div class="signup" onclick="location.href='{% url "accounts:signup" %}'">
+            <div class="signup" onclick="goSignup()">
                 <h4 style="text-align: center; font-weight: 700;">회원가입</h4>
             </div>
         </form>        
@@ -54,12 +54,17 @@
             success: function(response) {
                 console.log("success : ",response);
                 location.href="{% url 'articles:list-template'%}"
+
             },
             error: function(error) {
                 console.log("error : ",error);
             },
         });
     };
+
+    function goSignup() {
+        location.href='{% url "accounts:signup" %}'
+    }
   </script>
 </div>
 {% endblock content %}

@@ -21,10 +21,18 @@
             }
         });
     </script>
+
 </head>
 <body>
 {% block content %}
 
+<script>
+    $.ajaxSetup({
+        headers: {
+            "X-CSRFToken": '{{ csrf_token }}'
+        }
+    });
+</script>
 {% endblock content %}
 
 

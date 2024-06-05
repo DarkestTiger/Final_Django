@@ -1,5 +1,10 @@
-from django.shortcuts import render
-from django.contrib import redirects
+from django.shortcuts import redirect
+
 
 def home(request):
-    return render(request,"login.html")
+    if request.method == 'GET':
+        user = request.user.is_authenticated
+        if user:
+            return redirect("articles:list-template")
+        else:
+            return redirect("accounts:login")
