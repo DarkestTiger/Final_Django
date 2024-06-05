@@ -11,13 +11,14 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Article,Comment,Hashtag,Saved
 from .serializers import ArticleSerializer,ArticleDetailSerializer,CommentSerializer,ArticleSavedSerializer
 
+from accounts.models import User
 
 # 게시판 구현
 # 게시글 목록
 class ArticleListAPIView(APIView):
     # 게시글 목록 조회
     def get(self, request):
-        article = Article.objects.all()
+        article = Article.objects.all().order_by('-created_at')
         serializer = ArticleSerializer(article, many=True)
         return Response(serializer.data)
 
@@ -32,6 +33,8 @@ class ArticleListAPIView(APIView):
             return Response({"error": "content is required"}, status=400)
 
         article = Article.objects.create(author=request.user, content=content, image=image)
+        # author=get_object_or_404(User, username='gozzun')
+        # article = Article.objects.create(author=author, content=content, image=image)
 
         for name in hashtags.split(','):
             hashtag, _ = Hashtag.objects.get_or_create(name=name)
@@ -62,7 +65,7 @@ class ArticleDetailAPIView(APIView):
         content = request.data.get("content", None)
         # ','로 해시태그 구분 가능 ex) hashtags = "안녕,반가워"
         hashtags = request.data.get("hashtags", "")
-        image = request.data.get("image", None)
+        image = request.data.get("image")
 
         if content is not None:
             article.content = content
@@ -117,7 +120,9 @@ class CommentListAPIView(APIView):
             if not comment.strip():
                 return Response({"error": "Comment cannot be empty"}, status=status.HTTP_403_FORBIDDEN)
             
+            # author=get_object_or_404(User, username='gozzun')
             serializer.save(author=request.user, article=article)
+            # serializer.save(author=author, article=article)
             # serializer.save(article=article)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -269,9 +274,11 @@ class SavedDetailAPIView(APIView):
     # 저장 목록 내용 조회
     def get(self, request, savedId):
         saved = self.get_object(savedId)
-        saved_list = saved.saved_articles.all()
-        articles = [s.content for s in saved_list]
-        return Response({"saved articles": articles})
+        # saved_list = saved.saved_articles.all()
+        # articles = [s.content for s in saved_list]
+        # return Response({"saved articles": articles})
+        serializer = ArticleSavedSerializer(saved)
+        return Response(serializer.data)
 
     # 저장 목록 이름 수정
     @permission_classes([IsAuthenticated])

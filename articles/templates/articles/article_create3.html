@@ -1,13 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>ARTICLE CREATE3 - 이미지 업로드</h1>
+{% block title %}
+<title>게시글 작성</title>
+{% endblock title %}
+    <h1>ARTICLE CREATE</h1>
+    <a class="nav-link" href="{% url 'articles:list-template'%}">목록으로 돌아가기</a>
     <form onsubmit="createArticle(event)">
-        <textarea name="content" id="" cols="30" rows="10" required></textarea>
+        <textarea name="content" id="" cols="30" rows="10" placeholder='내용을 입력해주세요.' required></textarea>
         <br>
-        <input name="hashtags" type="text">
+        <input name="hashtags" type="text" placeholder="ex) 오운완,상체,하체">
         <br>
-        <input name="image" accept="image/*" type="file" required>
+        <img id="imgPreview" style="max-width: 200px; max-height: 200px;">
+        <br>
+        <input name="image" accept="image/*" type="file" onchange="document.getElementById('imgPreview').src = window.URL.createObjectURL(this.files[0]);" required>
         <br>
         <button>게시글 업로드</button>
     </form>
@@ -16,10 +22,6 @@
         function createArticle(event) {
             event.preventDefault();
             console.log('게시글 업로드')
-            {# FormData #}
-            {#    content  | 오늘 운동 완료 ㅎㅎ #}
-            {#    hashtags | 오운완,운동      #}
-            {#    image    | logo.png     #}
             $.ajax({
                 type: 'POST',
                 url: '/articles/',

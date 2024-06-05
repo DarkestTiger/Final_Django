@@ -20,7 +20,6 @@ class CommentSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret.pop("article")
-        ret.pop("like_users")
         return ret
     def get_like_count(self, instance):
         return instance.like_users.count()
@@ -28,6 +27,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class ArticleSerializer(serializers.ModelSerializer):
     author_username = serializers.ReadOnlyField(source='author.username')
     like_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
     hashtags = HashtagSerializer(many=True)
     image = serializers.ImageField(use_url=True)
     class Meta:
@@ -37,20 +37,25 @@ class ArticleSerializer(serializers.ModelSerializer):
         # image도 마찬가지, views.py에서 처리
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret.pop("like_users")
         ret.pop("saved_list")
         return ret
     def get_like_count(self, instance):
         return instance.like_users.count()
+    def get_comments_count(self, instance):
+        return instance.comments.count()
 
 class ArticleDetailSerializer(ArticleSerializer):
     comments = CommentSerializer(many=True, read_only=True)
 
 class ArticleSavedSerializer(serializers.ModelSerializer):
+    owner_username = serializers.ReadOnlyField(source='owner.username')
     saved_articles = ArticleSerializer(many=True, read_only=True)
+    saved_articles_count = serializers.SerializerMethodField()
     class Meta:
         model = Saved
         fields = "__all__"
+    def get_saved_articles_count(self, instance):
+        return instance.saved_articles.count()
 
 class UserProfileSerializer(serializers.ModelSerializer):
     posts = ArticleSerializer(many=True, read_only=True)

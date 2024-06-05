@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .profile-img{
+        width: 15px;
+        height: 15px;
+    }
+    .comment-profile-img{
+        width: 15px;
+        height: 15px;
+    }
+</style>
+{% block title %}
+<title>댓글</title>
+{% endblock title %}
+<h1>COMMENT DETAIL</h1>
+{% if request.user.is_authenticated %}
+    <h2>{{ request.user }}</h2>
+{% else %}
+    <a class="nav-link" href="{% url 'accounts:login' %}">로그인</a>
+{% endif %}
+<a class="nav-link" href="{% url 'articles:list-template'%}">목록</a>
+<a class="nav-link" href="{% url 'articles:detail-template' comment.article.id %}">게시글로 돌아가기</a>
+<br>
+<div id="main-container"></div>
+<div id="like-users">좋아요를 누른 유저: 
+    {% for user in like_users %}
+        {% if user.profile_img %}
+            <img src="{{ user.profile_img.url }}" class="profile-img"/> {{ user.username }} 
+        {% else %}
+            <img src="{% static 'accounts/user.png' %}" class="profile-img"/> {{ user.username }} 
+        {% endif %}
+    {% endfor %}
+</div>
+<br>
+{% if request.user == comment.author %}
+    <form onsubmit="updateArticleComment(event, '{{ commentId }}')">
+        <br>
+        <input name="comment" type="text" value="{{ comment.comment }}" placeholder="댓글을 입력해주세요.">
+        <br>
+        <button>댓글 수정</button>
+    </form>
+{% endif %}
+
+<script>
+    const UserId = "{{ request.user.id }}";
+    function likeComment(commentId) {
+            $.ajax({
+            type: "POST",
+            url: `/articles/comment/${commentId}/like/`,
+            success: function(response) {
+                location.reload();
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("좋아요 실패");
+            }
+        });
+        }
+
+        function dislikeComment(commentId) {
+            $.ajax({
+            type: "DELETE",
+            url: `/articles/comment/${commentId}/like/`,
+            success: function(response) {
+                location.reload();
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("좋아요 취소 실패");
+            }
+        });
+        }
+    $(document).ready(function () {
+    $.ajax({
+        type: "GET",
+        url: "/articles/comment/{{ commentId }}/",
+        success: function (response) {
+            const mainContainer = document.getElementById('main-container');
+            const comment = response
+            const commentContainer = document.createElement('div');
+            commentContainer.classList.add('article-container');
+            const date = new Date(comment.created_at)
+            const up_date = new Date(comment.updated_at)
+            let commentHTML = `
+            <div class="comment">${comment.comment}</div>
+            <div class="like">
+                <a href="#" onclick="${isLiked(comment)? `dislikeComment(${comment.id});` : `likeComment(${comment.id});`} return false;">
+                ${isLiked(comment) ? '좋아요 취소' : '좋아요'}
+                </a>: ${comment.like_count}개
+            </div>
+            <div class="created-at">작성일: ${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+            <div class="updated-at">수정일: ${up_date.getFullYear()}-${up_date.getMonth()+1}-${up_date.getDate()}</div>
+        `;
+            function isLiked(comment) {
+                return comment.like_users.includes(parseInt(UserId));
+            }
+            if (comment.author_profile_img) {
+                commentHTML=`<div class="author"><img src='${comment.author_profile_img}' class="comment-profile-img"/> ${comment.author_username}</div>`+commentHTML
+            }
+            else{
+                commentHTML=`<div class="author"><img src="{% static 'accounts/user.png' %}" class="comment-profile-img"/> ${comment.author_username}</div>`+commentHTML
+            }
+            if (comment.author == UserId) {
+                commentHTML = commentHTML+`<div class="delete"><a href="#" onclick="deleteArticleComment(${comment.id}); return false;">삭제</a></div>`;
+            }
+            commentContainer.innerHTML = commentHTML;
+            mainContainer.appendChild(commentContainer);
+        }
+    })
+    }
+    )
+    function updateArticleComment(event, commentId) {
+        event.preventDefault();
+        var formData = new FormData(event.target);
+        formData.append('commentId', commentId);
+        $.ajax({
+                type: "PUT",
+                url: `/articles/comment/${commentId}/`,
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    location.href = `/articles/comment/${commentId}/template`;
+                }
+            });
+    }
+    function deleteArticleComment(commentId) {
+    if (confirm("댓글을 삭제하시겠습니까?")) {
+        $.ajax({
+            type: "DELETE",
+            url: `/articles/comment/${commentId}/`,
+            success: function(response) {
+                alert("댓글이 삭제되었습니다.");
+                location.href = '/articles/list/template/';
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("댓글 삭제에 실패했습니다. 다시 시도해주세요.");
+            }
+        });
+    }
+}
+</script>
+
+{% endblock %}

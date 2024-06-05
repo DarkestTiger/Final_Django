@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .profile-img {
+        width: 15px;
+        height: 15px;
+    }
+    #main-container {
+        background-color: lightgray;
+        display: flex;
+        flex-direction: column;
+    }
+    #main-container>.saved-container {
+        width: 250px;
+        height: flex;
+        background-color: white;
+        border: 1px gray solid;
+        margin-bottom: 4px;
+    }
+</style>
+{% block title %}
+<title>저장목록 상세</title>
+{% endblock title %}
+<h1>SAVED DETAIL</h1>
+{% if request.user.is_authenticated %}
+    <h2>{{ request.user }}</h2>
+{% else %}
+<a class="nav-link" href="{% url 'accounts:login' %}">로그인</a>
+{% endif %}
+<a class="nav-link" href="{% url 'articles:list-template'%}">게시글 목록</a>
+<a class="nav-link" href="{% url 'articles:saved-list-template'%}">저장목록 조회</a>
+<div id="main-container"></div>
+<div id="articles-container"></div>
+
+<script>
+    const UserId = "{{ request.user.id }}";
+    
+    $(document).ready(function () {
+    $.ajax({
+        type: "GET",
+        url: "/articles/saved/{{ savedId }}/",
+        success: function (response) {
+            console.log(response);
+            console.log(response.saved_articles)
+            const mainContainer = document.getElementById('main-container');
+            const articlesContainer = document.getElementById('articles-container');
+            const saved = response;
+            const savedContainer = document.createElement('div');
+            savedContainer.classList.add('saved-container');
+            let savedHTML = `<div class="name">저장목록 이름: ${saved.name}</div>
+            <div class="saved-articles">저장된 게시글: ${saved.saved_articles_count}개</div>
+            `;
+            if (saved.owner_profile_img) {
+                savedHTML=`<div class="owner"><img src='${saved.owner_profile_img}' class="profile-img"/> ${saved.owner_username}</div>`+savedHTML
+            }
+            else{
+                savedHTML=`<div class="owner"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> ${saved.owner_username}</div>`+savedHTML
+            }
+            if (saved.owner == UserId) {
+                savedHTML = savedHTML+`<div class="update"><a href="/articles/saved/${saved.id}/update/template/">수정</a> <a href="#" onclick="deleteSaved(${saved.id}); return false;">삭제</a></div>`;
+                        }
+            savedContainer.innerHTML = savedHTML;
+            mainContainer.appendChild(savedContainer);
+            response.saved_articles.forEach(function (article) {
+                const articleContainer = document.createElement('div');
+                articleContainer.classList.add('article-container');
+                const date = new Date(article.created_at)
+                articleContainer.innerHTML=`
+                <div class="content"><a href="/articles/${article.id}/template/">${article.content}</a></div>
+                <div class="created-at">${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+                <div class="like">좋아요: ${article.like_count}개</div>
+                <div class="comment">댓글: ${article.comments_count}개</div>
+                <div class="hashtags"></div>
+                `;
+            if (article.image) {
+                articleHTML = `<img src='${article.image}'/>` + articleContainer.innerHTML;
+            }
+            if (article.author_profile_img) {
+                articleContainer.innerHTML=`<div class="author"><img src='${article.author_profile_img}' class="profile-img"/> ${article.author_username}</div>`+articleContainer.innerHTML
+            }
+            else{
+                articleContainer.innerHTML=`<div class="author"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> ${article.author_username}</div>`+articleContainer.innerHTML
+            }
+
+            if (saved.owner == UserId) {
+                articleContainer.innerHTML= articleContainer.innerHTML+`<button onclick="dissaveArticle({{ savedId }}, ${article.id})">저장 취소</button>`
+            }
+
+            articlesContainer.appendChild(articleContainer)
+            const hashtagsContainer = articleContainer.querySelector('.hashtags');
+            article.hashtags.forEach(function (hashtag) {
+    if (hashtag.name.trim() !== '') {
+        const hashtagElement = document.createElement('span');
+        hashtagElement.classList.add('hashtag');
+        hashtagElement.textContent = `#${hashtag.name} `;
+        hashtagsContainer.appendChild(hashtagElement);
+    }
+});
+        }
+            )
+        }})});
+        function dissaveArticle(savedId, articleId) {
+            $.ajax({
+            type: "DELETE",
+            url: `/articles/saved/{{ savedId }}/${articleId}/`,
+            success: function(response) {
+                location.reload()
+            }
+        })
+        }
+
+        function deleteSaved(savedId) {
+    if (confirm("저장목록을 삭제하시겠습니까?")) {
+        $.ajax({
+            type: "DELETE",
+            url: `/articles/saved/${savedId}/`,
+            success: function(response) {
+                alert("저장목록이 삭제되었습니다.");
+                location.href = '/articles/saved/template/';
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("저장목록 삭제에 실패했습니다. 다시 시도해주세요.");
+            }
+        });
+    }
+}
+</script>
+{% endblock %}
