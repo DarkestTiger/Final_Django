@@ -14,7 +14,6 @@ templates_urlpatterns = [
     path("login/", templates_views.login, name='login'),
     path("profile/", templates_views.profile, name='profile'),
     path("profile/modify/", templates_views.modify, name='modify'),
-    path("delete/", templates_views.delete, name='delete'),
 ]
 
 drf_urlpatterns = [ path("auth/signup/", views.UserSignUp.as_view(), name='api_signup'),

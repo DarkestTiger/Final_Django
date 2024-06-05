@@ -20,7 +20,7 @@
 
 .app {
     width: 420px;
-    height: 650px;
+    height: 700px;
     border: 3px solid #444444;
     margin-top: 150px;
     position: relative;
@@ -32,9 +32,9 @@
     justify-content: center;
 }
 
-.app > form {
+form {
     position: absolute;
-    top: 30%;
+    top: 20%;
     left: 15%;
 }
 
@@ -46,8 +46,8 @@ input{
 button#submit{
     width: 300px;
     height: 50px;
-    margin-top: 50px;
-    margin-bottom: 30px;
+    position: absolute;
+    top: 160%;
     border-radius: 10px;
     background-color: #FFCD4A;
     font-size: 30px;
@@ -56,11 +56,41 @@ button#submit{
 
 textarea#introduce {
     position: absolute;
-    width: 85%;
+    width: 100%;
 }
 
 .address {
     position: absolute;
     width: 100%;
-    display: flex
+    display: flex;
+    top: 100%;
+}
+
+input#imageFile {
+    position: inherit;
+}
+
+.img_previews {
+    position: inherit;
+    display: flex;
+    top: 120%;
+    width: 100px;
+    height: 100px;
+}
+
+img#preview {
+    position: initial;
+    margin-top: 30px;
+}
+
+button.submit {
+    width: 300px;
+    height: 50px;
+    position: relative;
+    top: 50%;
+    border-radius: 10px;
+    background-color: #FFCD4A;
+    font-size: 30px;
+    font-weight: 600;
+    
 }
