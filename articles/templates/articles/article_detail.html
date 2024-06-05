@@ -32,6 +32,9 @@
         width: 50px;
         height: 50px;
     }
+    .form-select{
+        width: 200px;
+    }
 </style>
 {% block title %}
 <title>오.운.완</title>
@@ -55,7 +58,19 @@
         {% endif %}
     {% endfor %}
 </div>
+{% if saved %}
+    <form onsubmit="saveArticle(event)">
+        <select class="form-select" id="savedSelect">
+            <option selected disabled>--------------------</option>
+            {% for s in saved %}
+                <option value="{{ s.id }}" data-saved-id="{{ s.id }}">{{ s.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">저장</button>
+    </form>
+{% endif %}
 <br>
+
 <div id="comments-container"></div>
 
 {% if request.user.is_authenticated %}
@@ -66,6 +81,29 @@
     </form>
 {% endif %}
 <script>
+    function saveArticle(event) {
+        event.preventDefault();
+        var selectElement = document.getElementById('savedSelect');
+        var selectedIndex = selectElement.selectedIndex;
+        if (selectedIndex === 0) {
+        alert("옵션을 선택하세요.");
+        return;
+        }
+        var savedId = selectElement.options[selectedIndex].getAttribute('data-saved-id');
+        $.ajax({
+            type: 'POST',
+            url: `/articles/saved/${savedId}/{{ articleId }}/`,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                location.href = `/articles/saved/${savedId}/template/`;
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("저장 실패: 이미 게시글이 저장목록에 저장되어 있는지 확인해주세요.");
+            }
+        })
+    }
+
     function createArticleComment(event) {
         event.preventDefault();
         console.log('댓글 작성')

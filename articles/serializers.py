@@ -48,10 +48,14 @@ class ArticleDetailSerializer(ArticleSerializer):
     comments = CommentSerializer(many=True, read_only=True)
 
 class ArticleSavedSerializer(serializers.ModelSerializer):
+    owner_username = serializers.ReadOnlyField(source='owner.username')
     saved_articles = ArticleSerializer(many=True, read_only=True)
+    saved_articles_count = serializers.SerializerMethodField()
     class Meta:
         model = Saved
         fields = "__all__"
+    def get_saved_articles_count(self, instance):
+        return instance.saved_articles.count()
 
 class UserProfileSerializer(serializers.ModelSerializer):
     posts = ArticleSerializer(many=True, read_only=True)

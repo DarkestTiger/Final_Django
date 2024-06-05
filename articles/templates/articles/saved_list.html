@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .profile-img {
+        width: 15px;
+        height: 15px;
+    }
+    #main-container {
+        background-color: lightgray;
+        display: flex;
+        flex-direction: column;
+    }
+    #main-container>.saved-container {
+        width: 250px;
+        height: flex;
+        background-color: white;
+        border: 1px gray solid;
+        margin-bottom: 4px;
+    }
+</style>
+{% block title %}
+    <title>전체 저장목록</title>
+{% endblock title %}
+<h1>SAVED LIST</h1>
+{% if request.user.is_authenticated %}
+    <h2>{{ request.user }}</h2>
+{% endif %}
+<a class="nav-link" href="{% url 'articles:list-template'%}">게시글 목록</a>
+<a class="nav-link" href="{% url 'articles:saved-list-template'%}">저장목록</a>
+<a class="nav-link" href="{% url 'articles:saved-create-template'%}">저장목록 생성</a>
+<div id="main-container"></div>
+<script>
+    const UserId = "{{ request.user.id }}";
+    $.ajax({
+            type: "GET",
+            url: "/articles/saved/",
+            success: function (response) {
+                console.log(response)
+                const mainContainer = document.getElementById('main-container')
+                response.forEach(function (saved) {
+                    const savedContainer = document.createElement('div')
+                    savedContainer.classList.add('saved-container')
+                    let savedHTML = `<div class="name">저장목록 이름: ${saved.name}</div>
+                    <div class="saved-articles"><a href="/articles/saved/${saved.id}/template/">저장된 게시글 ${saved.saved_articles_count}개 모두 보기</a></div>
+                    `;
+            console.log(saved.owner_username)
+            if (saved.owner_profile_img) {
+                savedHTML=`<div class="owner"><img src='${saved.owner_profile_img}' class="profile-img"/> ${saved.owner_username}</div>`+savedHTML
+            }
+            else{
+                savedHTML=`<div class="owner"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> ${saved.owner_username}</div>`+savedHTML
+            }
+            if (saved.owner == UserId) {
+                savedHTML = savedHTML+`<div class="update"><a href="/articles/saved/${saved.id}/update/template/">수정</a> <a href="#" onclick="deleteSaved(${saved.id}); return false;">삭제</a></div>`;
+                        }
+
+            savedContainer.innerHTML = savedHTML;
+                    mainContainer.appendChild(savedContainer)}
+                    )
+                    }
+                    });
+                    function deleteSaved(savedId) {
+    if (confirm("저장목록을 삭제하시겠습니까?")) {
+        $.ajax({
+            type: "DELETE",
+            url: `/articles/saved/${savedId}/`,
+            success: function(response) {
+                alert("저장목록이 삭제되었습니다.");
+                location.href = '/articles/saved/template/';
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("저장목록 삭제에 실패했습니다. 다시 시도해주세요.");
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

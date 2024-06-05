@@ -6,6 +6,7 @@
 {% endblock title %}
 <h1>ARTICLE UPDATE</h1>
     <a class="nav-link" href="{% url 'articles:list-template'%}">목록으로 돌아가기</a>
+    <a class="nav-link" href="{% url 'articles:detail-template' article.id %}">게시물로 돌아가기</a>
     <form onsubmit="updateArticle(event)">
         <textarea name="content" id="" cols="30" rows="10" placeholder='내용을 입력해주세요.' required>{{ article.content }}</textarea>
         <br>

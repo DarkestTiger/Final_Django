@@ -274,9 +274,11 @@ class SavedDetailAPIView(APIView):
     # 저장 목록 내용 조회
     def get(self, request, savedId):
         saved = self.get_object(savedId)
-        saved_list = saved.saved_articles.all()
-        articles = [s.content for s in saved_list]
-        return Response({"saved articles": articles})
+        # saved_list = saved.saved_articles.all()
+        # articles = [s.content for s in saved_list]
+        # return Response({"saved articles": articles})
+        serializer = ArticleSavedSerializer(saved)
+        return Response(serializer.data)
 
     # 저장 목록 이름 수정
     @permission_classes([IsAuthenticated])

@@ -8,7 +8,11 @@ template_urlpatterns = [
     path("create/template/", template_views.article_create_template_view, name="create-template"),
     path("<int:articleId>/template/",template_views.article_detail_template_view, name="detail-template"),
     path("<int:articleId>/update/template/", template_views.article_update_template_view, name="update-template"),
-    path("comment/<int:commentId>/template/", template_views.comment_detail_view, name="comment-detail-template")
+    path("comment/<int:commentId>/template/", template_views.comment_detail_view, name="comment-detail-template"),
+    path("saved/template/",template_views.saved_list_template_view, name="saved-list-template"),
+    path("saved/create/template/",template_views.saved_create_template_view, name="saved-create-template"),
+    path("saved/<int:savedId>/template/", template_views.saved_detail_template_view, name="saved-detail-template"),
+    path("saved/<int:savedId>/update/template/", template_views.saved_update_template_view, name="saved-update-template")
 ]
 
 drf_urlpatterns = [
