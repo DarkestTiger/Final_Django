@@ -43,10 +43,32 @@
         <a class="nav-link" href="{% url 'accounts:login' %}">로그인</a>
     {% endif %}
     <a class="nav-link" href="{% url 'articles:saved-list-template'%}">저장목록 조회</a>
-    <div id="main-container"></div>
-
+    <div id="main-container"><div id="recommend-container" style="position: absolute; right: 20px; bottom: 600px;">프로필 추천</div></div>
     <script>
         const UserId = "{{ request.user.id }}";
+        $.ajax({
+            type: "GET",
+            url:"/accounts/auth/recommend/",
+            success: function (response) {
+                console.log(response)
+                const recommendContainer = document.getElementById('recommend-container')
+                response.forEach(function (user) {
+                    const userContainer =document.createElement('div')
+                    userContainer.classList.add('user-container')
+                    let userHTML = `
+                    <div class="address">${user.address}</div>
+                    `;
+                    if (user.profile_img) {
+                        userHTML=`<div class="user"><img src='${user.profile_img}' class="profile-img"/> ${user.username}</div>`+userHTML
+                    }
+                    else{
+                        userHTML=`<div class="user"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> ${user.username}</div>`+userHTML
+                    }
+                    userContainer.innerHTML = userHTML;
+                    recommendContainer.appendChild(userContainer)
+                })
+            }
+        })
         $.ajax({
             type: "GET",
             url: "/articles/",
