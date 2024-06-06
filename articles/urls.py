@@ -12,7 +12,8 @@ template_urlpatterns = [
     path("saved/template/",template_views.saved_list_template_view, name="saved-list-template"),
     path("saved/create/template/",template_views.saved_create_template_view, name="saved-create-template"),
     path("saved/<int:savedId>/template/", template_views.saved_detail_template_view, name="saved-detail-template"),
-    path("saved/<int:savedId>/update/template/", template_views.saved_update_template_view, name="saved-update-template")
+    path("saved/<int:savedId>/update/template/", template_views.saved_update_template_view, name="saved-update-template"),
+    path("search/<str:hashtag>/template/", template_views.hashtag_search_template_view, name="hashtag-search-template")
 ]
 
 drf_urlpatterns = [

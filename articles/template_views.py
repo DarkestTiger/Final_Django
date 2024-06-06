@@ -65,3 +65,9 @@ def saved_update_template_view(request, savedId):
         "savedId": savedId
     }
     return render(request, "articles/saved_update.html", context)
+
+def hashtag_search_template_view(request, hashtag):
+    context={
+        "hashtag":hashtag
+    }
+    return render(request, "articles/hashtag_search.html", context)

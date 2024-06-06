@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ValidationError
+from django.db.models import Count
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -240,7 +241,7 @@ class CommentLikeAPIView(APIView):
 # 해시태그 검색
 @api_view(['GET'])
 def hashtag_search(request, hashtag):
-    article_list=Article.objects.filter(hashtags__name=hashtag)
+    article_list=Article.objects.filter(hashtags__name=hashtag).annotate(like_count=Count('like_users')).order_by('-like_count')
     serializer = ArticleSerializer(article_list, many=True)
     return Response(serializer.data)
 
