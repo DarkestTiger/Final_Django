@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}
+<title>다이어트 식단 추천 AI</title>
+{% endblock title %}
+
+{% block content %}
+<div class="title">
+    <h1 style="text-align: center;font-weight: 700;margin-top: 5%;">다이어트 식단 추천 AI</h1>
+</div>
+<div style="text-align: center;font-weight: 700;">
+    AI에게 다이어트 식단을 추천받아 보세요!
+    <br>
+    <식단 목록>
+        <br>1. 플렉시테리언(식물성 단백질)
+        <br>2. 사우스 비치(저탄수화물, 고단백)
+        <br>3. 오니쉬(가공되지 않은 저지방 식물성 식단)
+        <br>4. 비건(완전 채식)
+        <br>5. 슬림 패스트(하루 두끼 밥 대신 슬림 패스트 쉐이크, 한끼 500칼로리 수준의 식사)
+        <br>6. HMR(집에서 영양 균형이 갖추어진 도시락)
+        <br>7. 5:2(5일은 정상 식사, 2일은 500~600 칼로리 수준으로 식사 제한)
+        <br>8. 팔레오(가공되지 않은 식사, 생선에 집중)
+        <br>9. 지중해(생선, 올리브 오일과 함께 다양한 식물성 재료)
+        <br>10. 앳킨스(고기와 생선, 계란 등의 다양한 단백질 재료, 고단백, 고지방, 저탄수화물)
+        <br>11. 존(칼로리의 40%는 탄수화물, 30%는 단백질, 30%는 지방으로 구성)
+        <br>12. 벌크업(*특별 추가)
+        <br>※대답까지 약 5~10초 가량의 시간이 소요될 수 있습니다.
+</div>
+<a class="nav-link" href="{% url 'articles:list-template'%}"
+    style="text-align: center;display: block;margin-top: 20px;"><button>목록으로 돌아가기</button></a>
+<a class="nav-link" href="{% url 'articles:diet-gpt-template'%}"
+    style="text-align: center;display: block;margin-top: 20px;"><button>다시 추천 받기</button></a>
+<form id="diet-form" style="text-align: center;margin-top: 20px;">
+    <textarea name="message" id="message" cols="30" rows="10" placeholder='내용을 입력해주세요. ex) 플렉시테리언 식단 추천해줘' required
+        style="width: 80%;margin-bottom: 10px;"></textarea>
+    <br>
+    <button id="submit-button"
+        style="background-color: #FFCD4A; border: none; color: #141414; padding: 10px 20px; font-size: 16px; font-weight: 700; cursor: pointer;">다이어트
+        식단 추천 받기</button>
+</form>
+<div id="response-container" style="text-align: center;margin-top: 20px;"></div>
+
+<script>
+    $(document).ready(function () {
+        $("#diet-form").submit(function (event) {
+            event.preventDefault();
+            var formData = new FormData($(this)[0]);
+            var submitButton = $("#submit-button");
+            var dietForm = $("#diet-form");
+            submitButton.hide();
+            dietForm.find("textarea, button").prop("disabled", true);
+            $.ajax({
+                type: 'POST',
+                url: '/articles/dietgpt/',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    $('#response-container').html(`
+                        <div style='border: 2px solid #333; padding: 20px; margin-top: 20px;'>
+                            ${response.diet.split('\n').map(item => `<p>${item}</p>`).join('')}
+                        </div>
+                        `);
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

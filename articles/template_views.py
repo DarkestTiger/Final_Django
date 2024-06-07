@@ -72,3 +72,9 @@ def hashtag_search_template_view(request, hashtag):
         "hashtag":hashtag
     }
     return render(request, "articles/hashtag_search.html", context)
+
+def routine_gpt_template_view(request):
+    return render(request, "articles/routine_gpt.html")
+
+def diet_gpt_template_view(request):
+    return render(request, "articles/diet_gpt.html")

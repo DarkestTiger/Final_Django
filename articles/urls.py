@@ -13,7 +13,9 @@ template_urlpatterns = [
     path("saved/create/template/",template_views.saved_create_template_view, name="saved-create-template"),
     path("saved/<int:savedId>/template/", template_views.saved_detail_template_view, name="saved-detail-template"),
     path("saved/<int:savedId>/update/template/", template_views.saved_update_template_view, name="saved-update-template"),
-    path("search/<str:hashtag>/template/", template_views.hashtag_search_template_view, name="hashtag-search-template")
+    path("search/<str:hashtag>/template/", template_views.hashtag_search_template_view, name="hashtag-search-template"),
+    path("routinegpt/template/", template_views.routine_gpt_template_view, name="routine-gpt-template"),
+    path("dietgpt/template/", template_views.diet_gpt_template_view, name="diet-gpt-template")
 ]
 
 drf_urlpatterns = [
@@ -33,10 +35,13 @@ drf_urlpatterns = [
     path("search/<str:hashtag>/", views.hashtag_search, name="hashtag_search"),
 
     # saved articles
-
     path("saved/", views.SavedListAPIView.as_view(), name="saved_list"),
     path("saved/<int:savedId>/", views.SavedDetailAPIView.as_view(), name="saved_detail"),
     path("saved/<int:savedId>/<int:articleId>/", views.ArticleSavedAPIView.as_view(), name="article_saved"),
+
+    # chat-gpt
+    path("routinegpt/", views.routine_gpt, name="routine_gpt"),
+    path("dietgpt/", views.diet_gpt, name="diet_gpt")
 ]
 
 urlpatterns = drf_urlpatterns + template_urlpatterns

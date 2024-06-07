@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import Article,Comment,Hashtag,Saved
 from .serializers import ArticleSerializer,ArticleDetailSerializer,CommentSerializer,ArticleSavedSerializer
-
+from .bots import routine_bot, diet_bot
 from accounts.models import User
 
 # 게시판 구현
@@ -345,3 +345,17 @@ class ArticleSavedAPIView(APIView):
         saved.saved_articles.remove(article)
 
         return Response({"success": "You unsaved the article."}, status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+def routine_gpt(request):
+    data = request.data
+    message = data.get("message", "")
+    routine = routine_bot(message)
+    return Response({"routine": routine})
+
+@api_view(['POST'])
+def diet_gpt(request):
+    data = request.data
+    message = data.get("message", "")
+    diet = diet_bot(message)
+    return Response({"diet": diet})
