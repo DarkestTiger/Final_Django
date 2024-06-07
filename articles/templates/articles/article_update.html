@@ -1,50 +1,55 @@
 {% extends 'base.html' %}
 
-{% block content %}
 {% block title %}
 <title>게시글 수정</title>
 {% endblock title %}
-<h1>ARTICLE UPDATE</h1>
-    <a class="nav-link" href="{% url 'articles:list-template'%}">목록으로 돌아가기</a>
-    <a class="nav-link" href="{% url 'articles:detail-template' article.id %}">게시물로 돌아가기</a>
-    <form onsubmit="updateArticle(event)">
-        <textarea name="content" id="" cols="30" rows="10" placeholder='내용을 입력해주세요.' required>{{ article.content }}</textarea>
+
+{% block content %}
+<div id="main-container" class="container">  
+    <div class="title">
+        <h1 style="text-align: center;font-weight: 700;margin-top: 10%;">게시글 수정</h1>
+    </div>
+    <a class="nav-link" href="{% url 'articles:list-template'%}" style="display: block;margin-top: 20px;text-align: center;"><button>목록으로 돌아가기</button></a>
+    <a class="nav-link" href="{% url 'articles:detail-template' article.id %}" style="display: block;margin-top: 20px;text-align: center;"><button>게시물로 돌아가기</button></a>
+    <form onsubmit="updateArticle(event)" style="text-align: center;margin-top: 20px;">
+        <textarea name="content" id="" cols="30" rows="10" placeholder='내용을 입력해주세요.' required style="width: 80%;margin-bottom: 10px;">{{ article.content }}</textarea>
         <br>
-        <input name="hashtags" type="text" value="{% for hashtag in article.hashtags.all %}{{ hashtag.name }}{% if not forloop.last %},{% endif %}{% endfor %}" placeholder="ex) 오운완,상체,하체">
+        <input name="hashtags" type="text" value="{% for hashtag in article.hashtags.all %}{{ hashtag.name }}{% if not forloop.last %},{% endif %}{% endfor %}" placeholder="해시태그를 입력해주세요. ex) 오운완,상체,하체" style="width: 80%;margin-bottom: 10px;">
         <br>
         {% if article.image %}
         <br>
-        <img id="imgPreview" src="{{ article.image.url }}" alt="Current Image" style="max-width: 200px; max-height: 200px;">
+        <img id="imgPreview" src="{{ article.image.url }}" alt="Current Image" style="max-width: 200px; max-height: 200px;margin-bottom: 10px;">
         {% endif %}
         <br>
-        <input name="image" accept="image/*" type="file" onchange="document.getElementById('imgPreview').src = window.URL.createObjectURL(this.files[0]);">
-    <br>
-    <br>
-        <button>게시글 수정</button>
+        <input name="image" accept="image/*" type="file" onchange="document.getElementById('imgPreview').src = window.URL.createObjectURL(this.files[0]);" style="margin-bottom: 10px;">
+        <br>
+        <br>
+        <button style="background-color: #FFCD4A; border: none; color: #141414; padding: 10px 20px; font-size: 16px; font-weight: 700; cursor: pointer;">게시글 수정</button>
     </form>
+</div>
 
-    <script>
-        function updateArticle(event) {
-            event.preventDefault();
-            
-            var formData = new FormData(event.target);
-            
-            var imageInput = document.querySelector('input[name="image"]');
-            if (!imageInput.files[0]) {
-                formData.delete('image');
-            }
-    
-            $.ajax({
-                type: "PUT",
-                url: "/articles/{{ articleId }}/",
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    location.href = '/articles/list/template/';
-                }
-            });
+<script>
+    function updateArticle(event) {
+        event.preventDefault();
+        
+        var formData = new FormData(event.target);
+        
+        var imageInput = document.querySelector('input[name="image"]');
+        if (!imageInput.files[0]) {
+            formData.delete('image');
         }
-    </script>
-    
+
+        $.ajax({
+            type: "PUT",
+            url: "/articles/{{ articleId }}/",
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                location.href = '/articles/list/template/';
+            }
+        });
+    }
+</script>
+
 {% endblock %}

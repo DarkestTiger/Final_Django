@@ -1,24 +1,28 @@
 {% extends 'base.html' %}
 
-{% block content %}
 {% block title %}
 <title>저장목록 이름 수정</title>
 {% endblock title %}
 
-<h1>SAVED CREATE</h1>
-<a class="nav-link" href="{% url 'articles:list-template'%}">게시글 목록 조회</a>
-<a class="nav-link" href="{% url 'articles:saved-list-template'%}">저장목록 조회</a>
-<a class="nav-link" href="{% url 'articles:saved-detail-template' saved.id %}">저장목록으로 돌아가기</a>
-<br>
-<form onsubmit="updateArticleSaved(event)">
-    <input name="name" type="text" value="{{ saved.name }}" placeholder="저장목록 이름을 입력하세요." required>
-    <br>
-    <button type="submit">저장목록 이름 수정</button>
-</form>
+{% block content %}
+<div id="main-container" class="container">  
+    <div class="title">
+        <h1 style="text-align: center;font-weight: 700;margin-top: 10%;">저장목록 이름 수정</h1>
+    </div>
+    <a class="nav-link" href="{% url 'articles:list-template'%}" style="text-align: center;display: block;margin-top: 20px;"><button>게시글 목록 조회</button></a>
+    <a class="nav-link" href="{% url 'articles:saved-list-template'%}" style="text-align: center;display: block;margin-top: 20px;"><button>저장목록 조회</button></a>
+    <a class="nav-link" href="{% url 'articles:saved-detail-template' saved.id %}" style="text-align: center;display: block;margin-top: 20px;"><button>저장목록으로 돌아가기</button></a>
+    <form onsubmit="updateArticleSaved(event)" style="text-align: center;margin-top: 20px;">
+        <input name="name" type="text" value="{{ saved.name }}" placeholder="저장목록 이름을 입력하세요." required style="width: 80%;margin-bottom: 10px;">
+        <br>
+        <button style="background-color: #FFCD4A; border: none; color: #141414; padding: 10px 20px; font-size: 16px; font-weight: 700; cursor: pointer;">저장목록 이름 수정</button>
+    </form>
+</div>
+
 <script>
     function updateArticleSaved(event) {
         event.preventDefault();
-        var formData = new FormData(event.target);
+        console.log('저장목록 이름 수정');
         $.ajax({
             type: 'PUT',
             url: '/articles/saved/{{ savedId }}/',
@@ -26,9 +30,9 @@
             contentType: false,
             processData: false,
             success: function (response) {
-                location.href = '{% url "articles:saved-list-template" %}'
+                location.href = '{% url "articles:saved-list-template" %}';
             }
-        })
+        });
     }
 </script>
 {% endblock %}

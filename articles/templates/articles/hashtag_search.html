@@ -3,31 +3,57 @@
 {% block content %}
 <style>
     .profile-img {
-        width: 15px;
-        height: 15px;
+        width: 20px;
+        height: 20px;
     }
     #main-container {
         background-color: lightgray;
         display: flex;
         flex-direction: column;
+        align-items: center; /* 수직 가운데 정렬 */
     }
 
-    #main-container>.article-container {
-        width: 200px;
-        height: flex;
-        background-color: white;
+    .article-container {
+        width: flex; /* 전체 너비의 80% */
+        max-width: 600px; /* 최대 너비 설정 */
         border: 1px gray solid;
-        margin-bottom: 4px;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: white;
     }
 
-    #main-container>.article-container>.like {
-        font-size: 15px;
+    .article-container img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 10px;
     }
 
-    #main-container>.article-container>img {
-        width: 50px;
-        height: 50px;
+    .article-container .author {
+        font-weight: bold;
+        margin-bottom: 5px;
     }
+
+    .article-container .content {
+        margin-bottom: 5px;
+    }
+
+    .article-container .created-at {
+        font-size: 12px;
+        color: gray;
+        margin-bottom: 5px;
+    }
+
+    .article-container .like {
+        font-size: 14px;
+        color: gray;
+        margin-bottom: 5px;
+    }
+
+    .article-container .comment a {
+        color: blue;
+        text-decoration: none;
+    }
+
     .hashtags a {
         color: #2f8ad1;
         text-decoration: none;
@@ -38,13 +64,17 @@
     <title>#{{ hashtag }} 검색 기록</title>
 {% endblock title %}
 
-    <h1>HASHTAG SEARCH</h1>
+<div class="title">
+    <h1 style="text-align: center;font-weight: 700; color: yellow">오.운.완</h1>
     {% if request.user.is_authenticated %}
-        <h2>{{ request.user }}</h2>
+        <h2 style="text-align: center;font-weight: 700;">{{ request.user }}</h2>
+    {% else %}
+        <a class="nav-link" href="{% url 'accounts:login' %}"><button>로그인</button></a>
     {% endif %}
-    <h3>#{{ hashtag }}</h3>
-    <a class="nav-link" href="{% url 'articles:list-template'%}">게시글 목록</a>
-    <div id="main-container"></div>
+    <h3 style="text-align: center;font-weight: 700;">#{{ hashtag }}</h3>
+    <a class="nav-link" href="{% url 'articles:list-template'%}" style="text-align: center;"><button>게시글 목록</button></a>
+</div>
+<div id="main-container"></div>
     <script>
         const UserId = "{{ request.user.id }}";
         $.ajax({

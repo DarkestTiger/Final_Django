@@ -1,37 +1,42 @@
 {% extends 'base.html' %}
 
-{% block content %}
 {% block title %}
 <title>게시글 작성</title>
 {% endblock title %}
-    <h1>ARTICLE CREATE</h1>
-    <a class="nav-link" href="{% url 'articles:list-template'%}">목록으로 돌아가기</a>
-    <form onsubmit="createArticle(event)">
-        <textarea name="content" id="" cols="30" rows="10" placeholder='내용을 입력해주세요.' required></textarea>
-        <br>
-        <input name="hashtags" type="text" placeholder="ex) 오운완,상체,하체">
-        <br>
-        <img id="imgPreview" style="max-width: 200px; max-height: 200px;">
-        <br>
-        <input name="image" accept="image/*" type="file" onchange="document.getElementById('imgPreview').src = window.URL.createObjectURL(this.files[0]);" required>
-        <br>
-        <button>게시글 업로드</button>
-    </form>
 
-    <script>
-        function createArticle(event) {
-            event.preventDefault();
-            console.log('게시글 업로드')
-            $.ajax({
-                type: 'POST',
-                url: '/articles/',
-                data: new FormData(event.target),
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    location.href = '{% url "articles:list-template" %}'
-                }
-            })
-        }
-    </script>
+{% block content %}
+<div id="main-container" class="container">  
+    <div class="title">
+        <h1 style="text-align: center;font-weight: 700;margin-top: 10%;">게시글 작성</h1>
+    </div>
+    <a class="nav-link" href="{% url 'articles:list-template'%}" style="text-align: center;display: block;margin-top: 20px;"><button>목록으로 돌아가기</button></a>
+    <form onsubmit="createArticle(event)" style="text-align: center;margin-top: 20px;">
+        <textarea name="content" id="" cols="30" rows="10" placeholder='내용을 입력해주세요.' required style="width: 80%;margin-bottom: 10px;"></textarea>
+        <br>
+        <input name="hashtags" type="text" placeholder="해시태그를 입력해주세요. ex) 오운완,상체,하체" style="width: 80%;margin-bottom: 10px;">
+        <br>
+        <img id="imgPreview" style="max-width: 200px; max-height: 200px; margin-bottom: 10px;">
+        <br>
+        <input name="image" accept="image/*" type="file" onchange="document.getElementById('imgPreview').src = window.URL.createObjectURL(this.files[0]);" required style="margin-bottom: 10px;">
+        <br>
+        <button style="background-color: #FFCD4A; border: none; color: #141414; padding: 10px 20px; font-size: 16px; font-weight: 700; cursor: pointer;">게시글 업로드</button>
+    </form>
+</div>
+
+<script>
+    function createArticle(event) {
+        event.preventDefault();
+        console.log('게시글 업로드');
+        $.ajax({
+            type: 'POST',
+            url: '/articles/',
+            data: new FormData(event.target),
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                location.href = '{% url "articles:list-template" %}';
+            }
+        });
+    }
+</script>
 {% endblock %}

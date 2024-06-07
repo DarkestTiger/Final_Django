@@ -3,55 +3,61 @@
 {% block content %}
 <style>
     .profile-img {
-        width: 15px;
-        height: 15px;
+        width: 20px;
+        height: 20px;
     }
     .comment-profile-img{
-        width: 15px;
-        height: 15px;
+        width: 20px;
+        height: 20px;
     }
     #main-container {
         background-color: lightgray;
         display: flex;
         flex-direction: column;
+        align-items: center; /* 수직 가운데 정렬 */
     }
 
-    #main-container>.article-container {
-        width: 200px;
-        height: flex;
-        background-color: white;
+    .article-container {
+        width: flex; /* 전체 너비의 80% */
+        max-width: 600px; /* 최대 너비 설정 */
         border: 1px gray solid;
-        margin-bottom: 4px;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: white;
     }
 
-    #main-container>.article-container>.like {
-        font-size: 15px;
+    .article-container img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 10px;
     }
 
-    #main-container>.article-container>img {
-        width: 100px;
-        height: 100px;
+    .article-container .like {
+        font-size: 14px;
+        color: gray;
+        margin-bottom: 5px;
     }
-    .form-select{
-        width: 200px;
-    }
-    .hashtags a {
+
+    .article-container .hashtags a {
         color: #2f8ad1;
         text-decoration: none;
         margin-right: 5px;
     }
 </style>
+
 {% block title %}
 <title>오.운.완</title>
 {% endblock title %}
-<h1>ARTICLE DETAIL</h1>
-{% if request.user.is_authenticated %}
-    <h2>{{ request.user }}</h2>
-{% else %}
-    <a class="nav-link" href="{% url 'accounts:login' %}">로그인</a>
-{% endif %}
 
-<a class="nav-link" href="{% url 'articles:list-template'%}">목록</a>
+<div class="title">
+    <h1 style="text-align: center;font-weight: 700; color: yellow">오.운.완</h1>
+    {% if request.user.is_authenticated %}
+        <h2 style="text-align: center;font-weight: 700;">{{ request.user }}</h2>
+    {% else %}
+        <a class="nav-link" href="{% url 'accounts:login' %}"><button>로그인</button></a>
+    {% endif %}
+    <a class="nav-link" href="{% url 'articles:list-template'%}" style="text-align: center;"><button>게시글 목록</button></a>
+</div>
 
 <div id="main-container"></div>
 <div id="like-users">좋아요를 누른 유저: 
