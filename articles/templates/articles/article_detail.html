@@ -35,6 +35,11 @@
     .form-select{
         width: 200px;
     }
+    .hashtags a {
+        color: #2f8ad1;
+        text-decoration: none;
+        margin-right: 5px;
+    }
 </style>
 {% block title %}
 <title>오.운.완</title>
@@ -177,7 +182,7 @@
         console.log(UserId)
         console.log(isLiked(article))
         console.log(isLiked(article) ? '좋아요 취소' : '좋아요')
-
+        console.log(article.author)
         if (article.image) {
             articleHTML = `<img src='${article.image}'/>` + articleHTML;
         }
@@ -195,9 +200,10 @@
             const hashtagsContainer = articleContainer.querySelector('.hashtags');
             article.hashtags.forEach(function (hashtag) {
     if (hashtag.name.trim() !== '') {
-        const hashtagElement = document.createElement('span');
+        const hashtagElement = document.createElement('a');
         hashtagElement.classList.add('hashtag');
         hashtagElement.textContent = `#${hashtag.name} `;
+        hashtagElement.href = `${location.origin}/articles/search/${hashtag.name}/template/`;
         hashtagsContainer.appendChild(hashtagElement);
     }
 });

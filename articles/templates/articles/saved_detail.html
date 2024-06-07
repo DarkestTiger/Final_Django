@@ -18,6 +18,11 @@
         border: 1px gray solid;
         margin-bottom: 4px;
     }
+    .hashtags a {
+        color: #2f8ad1;
+        text-decoration: none;
+        margin-right: 5px;
+    }
 </style>
 {% block title %}
 <title>저장목록 상세</title>
@@ -91,9 +96,10 @@
             const hashtagsContainer = articleContainer.querySelector('.hashtags');
             article.hashtags.forEach(function (hashtag) {
     if (hashtag.name.trim() !== '') {
-        const hashtagElement = document.createElement('span');
+        const hashtagElement = document.createElement('a');
         hashtagElement.classList.add('hashtag');
         hashtagElement.textContent = `#${hashtag.name} `;
+        hashtagElement.href = `${location.origin}/articles/search/${hashtag.name}/template/`;
         hashtagsContainer.appendChild(hashtagElement);
     }
 });
