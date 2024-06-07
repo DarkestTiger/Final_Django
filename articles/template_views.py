@@ -32,6 +32,7 @@ def article_update_template_view(request, articleId):
     }
     return render(request, "articles/article_update.html", context)
 
+@login_required
 def comment_detail_view(request, commentId):
     comment = get_object_or_404(Comment, pk=commentId)
     like_users = comment.like_users.all()
