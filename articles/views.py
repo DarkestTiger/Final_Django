@@ -116,7 +116,7 @@ class CommentListAPIView(APIView):
     def post(self, request, articleId):
         article = self.get_article(articleId)
         serializer = CommentSerializer(data=request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(): # is_valid 때문에 시리얼라이저 -> required=False
             comment = serializer.validated_data.get('comment')
             if not comment.strip():
                 return Response({"error": "Comment cannot be empty"}, status=status.HTTP_403_FORBIDDEN)

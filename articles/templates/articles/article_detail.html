@@ -29,8 +29,8 @@
     }
 
     #main-container>.article-container>img {
-        width: 50px;
-        height: 50px;
+        width: 100px;
+        height: 100px;
     }
     .form-select{
         width: 200px;
@@ -120,6 +120,9 @@
             processData: false,
             success: function (response) {
                 location.reload();
+            },
+            error: function (error) {
+                console.log(error)
             }
         })
         return false

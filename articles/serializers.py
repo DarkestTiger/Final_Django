@@ -13,11 +13,11 @@ class HashtagSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     like_count = serializers.SerializerMethodField()
     author_username = serializers.ReadOnlyField(source='author.username')
-    author_profile_img = serializers.ImageField(source='author.profile_img')
+    author_profile_img = serializers.ImageField(source='author.profile_img', required=False)
     class Meta:
         model = Comment
         fields = "__all__"
-        read_only_fields = ('article','author','like_users',)
+        read_only_fields = ('article','author','like_users','author_profile_img',)
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret.pop("article")
@@ -35,7 +35,7 @@ class ArticleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         fields = "__all__"
-        read_only_fields = ('hashtags','like_users','saved_list')
+        read_only_fields = ('hashtags','like_users','saved_list','author_profile_img',)
         # image도 마찬가지, views.py에서 처리
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -57,6 +57,7 @@ class ArticleSavedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Saved
         fields = "__all__"
+        read_only_fields = ('author_profile_img',)
     def get_saved_articles_count(self, instance):
         return instance.saved_articles.count()
 
