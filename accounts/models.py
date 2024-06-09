@@ -12,13 +12,15 @@ class User(AbstractUser):
     address = models.CharField(max_length=300)
     introduce = models.TextField(blank=True)
 
+    follower = models.ManyToManyField('self', symmetrical=False, blank=True, related_name='following')
+    
+    class Meta:
+        swappable = 'AUTH_USER_MODEL'
+
     def get_profile_url(self):
         if not self.profile_img:
             return static('user.png')
         return self.profile_img.url
-
-# related_name을 following로 수정
-    follower = models.ManyToManyField("self", symmetrical=False,blank=True,related_name='following')
 
     def __str__(self):
         return f'{self.username} 님'

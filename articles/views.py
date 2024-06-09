@@ -1,5 +1,4 @@
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ValidationError
 from django.db.models import Count
 
@@ -9,10 +8,12 @@ from rest_framework.views import APIView
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Article,Comment,Hashtag,Saved
-from .serializers import ArticleSerializer,ArticleDetailSerializer,CommentSerializer,ArticleSavedSerializer
+from .models import Article ,Comment, Hashtag, Saved
+from .serializers import ArticleSerializer, ArticleDetailSerializer, CommentSerializer, ArticleSavedSerializer
 from .bots import routine_bot, diet_bot
 from accounts.models import User
+from accounts.views import user_profile, follow_unfollow_user  # accounts의 user_profile 뷰를 가져옴.
+
 
 # 게시판 구현
 # 게시글 목록

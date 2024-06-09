@@ -1,5 +1,6 @@
 from django.urls import path
 from articles import views, template_views
+from accounts.views import user_profile, follow_unfollow_user  # accounts의 user_profile 뷰를 가져옴
 
 app_name = 'articles'
 
@@ -41,7 +42,12 @@ drf_urlpatterns = [
 
     # chat-gpt
     path("routinegpt/", views.routine_gpt, name="routine_gpt"),
-    path("dietgpt/", views.diet_gpt, name="diet_gpt")
+    path("dietgpt/", views.diet_gpt, name="diet_gpt"),
+    
+    # view profile
+    path('profile/<str:username>/', user_profile, name='profile-redirect'),
+    path('profile/<str:username>/follow/', follow_unfollow_user, name='follow-unfollow-user'),
+
 ]
 
 urlpatterns = drf_urlpatterns + template_urlpatterns

@@ -10,9 +10,11 @@ from django.conf import settings  # 구글 위치 API
 from django.http import JsonResponse  # 구글 위치 API
 from django.views.decorators.csrf import csrf_exempt # 구글 위치 API
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model, login, logout
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.db.models import Case, When, IntegerField
+from django.contrib import messages
 
 from accounts.models import User
 
@@ -25,6 +27,7 @@ from .regions import REGIONS, DISTRICTS
 import googlemaps  # 구글 위치 API
 import json
 
+User = get_user_model()
 
 # 회원가입 기능
 class UserSignUp(APIView):
@@ -213,7 +216,7 @@ class DeleteProfile(RetrieveDestroyAPIView):
 # 보여지는 프로필 페이지
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
-def user_profile(request, username):
+def api_user_profile(request, username):
     user = get_object_or_404(User, username=username)
     user_articles = Article.objects.filter(author=user).order_by('-created_at')
     user_comment = Comment.objects.filter(author=user)
@@ -234,44 +237,47 @@ def user_profile(request, username):
 
     response_data = {
         'user': serializer.data,
-
         'following': following_user,
-
         'written_articles': article_serializer.data,
         'written_comment': comment_serializer.data,
-
         'like_articles': like_article_serializer.data,
         'like_comment': like_comment_serializer.data,
-
         'saved_list': saved_list_serializer.data,
     }
 
     return Response(response_data)
 
 
-# 팔로우
-class UserFollow(APIView):
-    @permission_classes([IsAuthenticated])
-    def post(self, request, username):
-        user = get_object_or_404(User, username=username)
-        if request.user == user:
-            return Response({"error": "자기 자신을 팔로우 할 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
-        if request.user in user.follower.all():
-            return Response({"error": "이미 팔로우를 했습니다."}, status=status.HTTP_400_BAD_REQUEST)
-        user.follower.add(request.user)
-        return Response({"success": "팔로우 완료"}, status=status.HTTP_201_CREATED)
+@login_required
+def user_profile(request, username):
+    user = get_object_or_404(User, username=username)
+    articles = Article.objects.filter(author=user)
 
-    # 언팔로우
-    @permission_classes([IsAuthenticated])
-    def delete(self, request, username):
-        user = get_object_or_404(User, username=username)
-        if request.user == user:
-            return Response({"error": "자기 자신을 언팔로우 할 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
-        if request.user not in user.follower.all():
-            return Response({"error": "팔로우 한 적이 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+    is_following = request.user in user.follower.all()
+
+    context = {
+        'profile_user': user,
+        'articles': articles,
+        'is_following': is_following,
+        'followers_count': user.follower.count(),
+        'following_count': user.following.count(),
+    }
+    return render(request, 'profile.html', context)
+
+@login_required
+def follow_unfollow_user(request, username):
+    user = get_object_or_404(User, username=username)
+    
+    if request.user == user:
+        messages.error(request, "자기 자신을 팔로우하거나 언팔로우 할 수 없습니다.")
+    elif request.user in user.follower.all():
         user.follower.remove(request.user)
-        return Response({"success": "언팔로우 완료"}, status=status.HTTP_204_NO_CONTENT)
+        messages.success(request, "언팔로우 완료.")
+    else:
+        user.follower.add(request.user)
+        messages.success(request, "팔로우 완료.")
 
+    return redirect('profile', username=username)
 
 # 프로필 추천
 @api_view(['GET'])
