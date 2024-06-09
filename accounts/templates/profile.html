@@ -1,9 +1,119 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block title %}
 <title>프로필</title>
 {% endblock title %}
 
 {% block content %}
+<style>
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
 
+    .profile-header img {
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        margin-right: 20px;
+    }
+
+    .profile-header div {
+        flex: 1;
+    }
+
+    .profile-header h1 {
+        margin: 0;
+    }
+
+    .profile-header p {
+        margin: 5px 0;
+    }
+
+    .profile-header .follow-button {
+        margin-top: 10px;
+    }
+
+    .feed-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .feed-item {
+        width: calc(33.333% - 10px);
+        margin-bottom: 15px;
+        box-sizing: border-box;
+        border: 1px solid #ddd;
+        padding: 10px;
+        background-color: #fff;
+    }
+
+    .feed-item img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .feed-item .content {
+        padding: 10px;
+    }
+
+    .feed-item .content .created-at,
+    .feed-item .content .like,
+    .feed-item .content .comment,
+    .feed-item .content .hashtags {
+        margin-bottom: 5px;
+    }
+</style>
+
+<div class="profile-header">
+    <img src="{{ profile_user.get_profile_url }}" alt="Profile Image">
+    <div>
+        <h1>{{ profile_user.username }} 님의 프로필</h1>
+        <p>{{ profile_user.introduce }}</p>
+        <p>팔로워: {{ followers_count }}명</p>
+        <p>팔로잉: {{ following_count }}명</p>
+        {% if is_following %}
+            <form action="{% url 'follow-unfollow-user' profile_user.username %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="follow-button">언팔로우</button>
+            </form>
+        {% else %}
+            <form action="{% url 'follow-unfollow-user' profile_user.username %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="follow-button">팔로우</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<div class="feed-container">
+    {% for article in articles %}
+        <div class="feed-item">
+            {% if article.image %}
+                <img src="{{ article.image.url }}" alt="Article Image">
+            {% endif %}
+            <div class="content">
+                <div class="created-at">{{ article.created_at|date:"Y-m-d" }}</div>
+                <div class="like">좋아요: {{ article.like_users.count }}개</div>
+                <div class="comment"><a href="/articles/{{ article.id }}/template/">댓글 {{ article.comments.count }}개 모두 보기</a></div>
+                <div class="hashtags">
+                    {% for hashtag in article.hashtags.all %}
+                        <a href="{% url 'articles:hashtag_search' hashtag.name %}">#{{ hashtag.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
 {% endblock content %}

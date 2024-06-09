@@ -19,10 +19,17 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from final_project import views
+from accounts.views import user_profile, follow_unfollow_user  # user_profile 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home, name="home"),
     path('accounts/', include('accounts.urls'), name="accounts" ),
     path('articles/', include('articles.urls'), name="articles" ),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('profile/<str:username>/', user_profile, name='profile'),
+    path('profile/<str:username>/follow/', follow_unfollow_user, name='follow-unfollow-user'),
+] 
+#+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
