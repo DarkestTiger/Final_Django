@@ -62,7 +62,13 @@
     }
     
 </style>
-
+<script>
+    function openProfilePopup(username) {
+        var url = `/profile/${username}/`;
+        var popup = window.open(url, 'popupWindow', 'width=600,height=400,scrollbars=yes');
+        popup.focus();
+    }
+</script>
 {% block title %}
 <title>오.운.완</title>
 {% endblock title %}
@@ -111,10 +117,10 @@
                 <div class="address">${user.address}</div>
                 `;
                 if (user.profile_img) {
-                    userHTML=`<div class="user"><img src='${user.profile_img}' class="profile-img"/> ${user.username}</div>`+userHTML
+                    userHTML=`<div class="user"><img src='${user.profile_img}' class="profile-img"/> <a href="javascript:void(0);" onclick="openProfilePopup('${user.username}');">${user.username}</a></div>`+userHTML
                 }
                 else{
-                    userHTML=`<div class="user"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> ${user.username}</div>`+userHTML
+                    userHTML=`<div class="user"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> <a href="javascript:void(0);" onclick="openProfilePopup('${user.username}');">${user.username}</a></div>`+userHTML
                 }
                 userContainer.innerHTML = userHTML;
                 recommendContainer.appendChild(userContainer)
@@ -146,9 +152,9 @@
                     articleHTML = `<img src='${article.image}'/>` + articleHTML;
                 }
                 if (article.author_profile_img) {
-                    articleHTML = `<div class="author"><img src='${article.author_profile_img}' class="profile-img"/> ${article.author_username}</div>` + articleHTML;
+                    articleHTML = `<div class="author"><img src='${article.author_profile_img}' class="profile-img"/> <a href="javascript:void(0);" onclick="openProfilePopup('${article.author_username}');">${article.author_username}</a></div>` + articleHTML;
                 } else {
-                    articleHTML = `<div class="author"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> ${article.author_username}</div>` + articleHTML;
+                    articleHTML = `<div class="author"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> <a href="javascript:void(0);" onclick="openProfilePopup('${article.author_username}');">${article.author_username}</a></div>` + articleHTML;
                 }
                 if (article.author == UserId) {
                     articleHTML += `<div class="update"><a href="/articles/${article.id}/update/template/">수정</a> <a href="#" onclick="deleteArticle(${article.id}); return false;">삭제</a></div>`;

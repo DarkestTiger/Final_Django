@@ -13,6 +13,10 @@ from datetime import timedelta
 from pathlib import Path
 from . import config
 import os
+from django.contrib.messages import constants as messages
+
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -148,3 +152,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 GOOGLE_MAPS_API_KEY = 'AIzaSyDRKB5eKYSPCf7lbPEtfb8rCyzJjohX6NE' # 구글 위치 API
+
+# 메시지 태그 설정 (선택사항)
+MESSAGE_TAGS = {
+    messages.DEBUG: 'debug',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'danger',  # 부트스트랩 클래스를 사용하려면 'danger'로 설정
+}
