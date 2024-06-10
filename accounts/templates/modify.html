@@ -21,15 +21,6 @@
         </div>
             <form>
                 {% csrf_token %}
-                <div class="username">
-                    <input
-                    type="text"
-                    id="username"
-                    placeholder="사용자명"
-                    name="username"
-                    />
-                </div>
-                <br>
                 <div class="pw">
                     <input
                     type="password"
@@ -385,7 +376,7 @@
                   <img id="preview">
                 </div>                
                 <br>
-                <button type="button" id="submit" onclick="update()">수정</button>
+                <button type="button" id="submit" onclick="update(event)">수정</button>
             </form>
     </div>
 </div>
@@ -410,24 +401,26 @@
       const email = $("#email").val()
       const introduce = $("#introduce").val()
       const address = $("#address").val()
-      const profile_img = $("#imageFile").val()
+      
+      let formData = new FormData();
+      let inputFile = $("input[name='profile_img']");
+      let files = inputFile[0].files;
+      formData.append("profile_img", files[0]);
+      formData.append("username", username)
+      formData.append("password", password)
+      formData.append("email", email)
+      formData.append("introduce", introduce)
+      formData.append("address", address)
 
         event.preventDefault();
         $.ajax({
             type: 'PUT',
             url: '/accounts/auth/{{ user.username }}/modify/',
-            data: {
-              username:username,
-              password:password,
-              email:email,
-              introduce:introduce,
-              address:address,
-              profile_img:profile_img,
-            },
+            data: formData,
             contentType: false,
             processData: false,
             success: function (response) {
-                location.href="{% url 'accounts:profile' %}"
+                location.href="/accounts/profile/<str:username>/"
             },
             error: function(e) {
                 console.log(e.responseJSON)

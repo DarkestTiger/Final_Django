@@ -69,7 +69,7 @@
 </style>
 
 <div class="profile-header">
-    <img src="{{ profile_user.get_profile_url }}" alt="Profile Image">
+    <img src="{{ user.get_profile_url }}" alt="Profile Image">
     <div>
         <h1>{{ profile_user.username }} 님의 프로필</h1>
         <p>{{ profile_user.introduce }}</p>
@@ -77,12 +77,12 @@
         <p>팔로워: {{ followers_count }}명</p>
         <p>팔로잉: {{ following_count }}명</p>
         {% if is_following %}
-            <form action="{% url 'follow-unfollow-user' profile_user.username %}" method="post">
+            <form action="{% url 'follow-unfollow-user' username=user.username %}" method="post">
                 {% csrf_token %}
                 <button type="submit" class="follow-button">언팔로우</button>
             </form>
         {% else %}
-            <form action="{% url 'follow-unfollow-user' profile_user.username %}" method="post">
+            <form action="{% url 'follow-unfollow-user' username=user.username %}" method="post">
                 {% csrf_token %}
                 <button type="submit" class="follow-button">팔로우</button>
             </form>

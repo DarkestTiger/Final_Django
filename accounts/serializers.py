@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 
 from .models import User
@@ -53,17 +53,5 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return ret
 
     
-    def Updates(self, instance, validated_data):
-        user = super().update(instance, validated_data)
-        username = user.username
-        password = user.password
-        email = user.email
-        profile_img = user.profile_img
-        address = user.address
-        user.set_username(username)
-        user.set_password(password)
-        user.set_email(email)
-        user.set_profile_img(profile_img)
-        user.set_address(address)
-        user.save()
-        return user
+    def validate_password(self, value: str) -> str:
+        return make_password(value)
