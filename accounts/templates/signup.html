@@ -10,6 +10,7 @@
 <div id="main-container" class="container">  
     <div class="box">
       <img src="{% static 'images\logo.png' %}" alt="오운완" />
+      <a class="nav-link" href="{% url 'accounts:login' %}" style="text-align: center;"><button>로그인</button></a>
     </div>
     <div class="app">
       <div class="title">
@@ -424,10 +425,12 @@
         data: formData,
         success: function(response) {
             console.log("success : ",response);
+            alert("회원가입이 완료되었습니다.")
             location.href="{% url 'accounts:login' %}"
         },
         error: function(error) {
             console.log("error : ",error);
+            alert(error.responseText);
         },
     });
   };

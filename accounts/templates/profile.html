@@ -69,7 +69,7 @@
 </style>
 
 <div class="profile-header">
-    <img src="{{ user.get_profile_url }}" alt="Profile Image">
+    <img src="{{ profile_user.get_profile_url }}" alt="Profile Image">
     <div>
         <h1>{{ profile_user.username }} 님의 프로필</h1>
         <p>{{ profile_user.introduce }}</p>
@@ -85,12 +85,12 @@
 
 
         {% if is_following %}
-            <form action="{% url 'follow-unfollow-user' username=user.username %}" method="post">
+            <form action="{% url 'follow-unfollow-user' profile_user.username %}" method="post">
                 {% csrf_token %}
                 <button type="submit" class="follow-button">언팔로우</button>
             </form>
         {% else %}
-            <form action="{% url 'follow-unfollow-user' username=user.username %}" method="post">
+            <form action="{% url 'follow-unfollow-user' profile_user.username %}" method="post">
                 {% csrf_token %}
                 <button type="submit" class="follow-button">팔로우</button>
             </form>
@@ -190,6 +190,7 @@
             })
         }).then(response => {
             if (response.ok) {
+                alert("회원 탈퇴가 완료되었습니다.");
                 window.location.href = '{% url "accounts:login" %}';
             } else {
                 return response.json().then(data => {
