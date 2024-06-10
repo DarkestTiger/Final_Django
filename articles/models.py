@@ -1,3 +1,4 @@
+
 from django.db import models
 from accounts.models import User
 from django.conf import settings

@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .profile-img {
+        width: 20px;
+        height: 20px;
+        border-radius: 100%;
+    }
+    .comment-profile-img{
+        width: 20px;
+        height: 20px;
+        border-radius: 100%;
+    }
+    #main-container {
+        background-color: lightgray;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* 수직 가운데 정렬 */
+    }
+
+    .article-container {
+        width: flex; /* 전체 너비의 80% */
+        max-width: 600px; /* 최대 너비 설정 */
+        border: 1px gray solid;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: white;
+    }
+
+    .article-container img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+    }
+
+    .article-container .like {
+        font-size: 14px;
+        color: gray;
+        margin-bottom: 5px;
+    }
+
+    .article-container .hashtags a {
+        color: #2f8ad1;
+        text-decoration: none;
+        margin-right: 5px;
+    }
+</style>
+
+{% block title %}
+<title>오.운.완</title>
+{% endblock title %}
+
+<div class="title">
+    <h1 style="text-align: center;font-weight: 700; color: yellow">오.운.완</h1>
+    {% if request.user.is_authenticated %}
+        <h2 style="text-align: center;font-weight: 700;">{{ request.user }}</h2>
+        <a class="nav-link" href="#" onclick="logout()"style="text-align: center;font-weight: 700;"><button>로그아웃</button></a>
+    {% else %}
+        <a class="nav-link" href="{% url 'accounts:login' %}" style="text-align: center;"><button>로그인</button></a>
+    {% endif %}
+    <a class="nav-link" href="{% url 'articles:list-template'%}" style="text-align: center;"><button>게시글 목록</button></a>
+</div>
+
+<div id="main-container"></div>
+<div id="like-users">좋아요를 누른 유저: 
+    {% for user in like_users %}
+        {% if user.profile_img %}
+            <img src="{{ user.profile_img.url }}" class="profile-img"/> {{ user.username }} 
+        {% else %}
+            <img src="{% static 'accounts/user.png' %}" class="profile-img"/> {{ user.username }} 
+        {% endif %}
+    {% endfor %}
+</div>
+{% if saved %}
+    <form onsubmit="saveArticle(event)">
+        <select class="form-select" id="savedSelect">
+            <option selected disabled>--------------------</option>
+            {% for s in saved %}
+                <option value="{{ s.id }}" data-saved-id="{{ s.id }}">{{ s.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">저장</button>
+    </form>
+{% endif %}
+<br>
+
+<div id="comments-container"></div>
+
+{% if request.user.is_authenticated %}
+    <form onsubmit="createArticleComment(event)">
+        <input name="comment" type="text" placeholder="댓글을 입력해주세요." required>
+        <br>
+        <button type="submit">댓글 작성</button>
+    </form>
+{% endif %}
+<script>
+    function logout(){
+        $.ajax({
+        type: "POST",
+        url:"/accounts/auth/logout/",
+        success: function (response) {
+            console.log(response)
+            location.href = '/articles/list/template/';
+        }
+    })
+    }
+    function saveArticle(event) {
+        event.preventDefault();
+        var selectElement = document.getElementById('savedSelect');
+        var selectedIndex = selectElement.selectedIndex;
+        if (selectedIndex === 0) {
+        alert("옵션을 선택하세요.");
+        return;
+        }
+        var savedId = selectElement.options[selectedIndex].getAttribute('data-saved-id');
+        $.ajax({
+            type: 'POST',
+            url: `/articles/saved/${savedId}/{{ articleId }}/`,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                location.href = `/articles/saved/${savedId}/template/`;
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("저장 실패: 이미 게시글이 저장목록에 저장되어 있는지 확인해주세요.");
+            }
+        })
+    }
+
+    function createArticleComment(event) {
+        event.preventDefault();
+        console.log('댓글 작성')
+        $.ajax({
+            type: 'POST',
+            url: '/articles/{{ articleId }}/comment/',
+            data: new FormData(event.target),
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                location.reload();
+            },
+            error: function (error) {
+                console.log(error)
+            }
+        })
+        return false
+    }
+    function likeArticle(articleId) {
+            $.ajax({
+            type: "POST",
+            url: `/articles/${articleId}/like/`,
+            success: function(response) {
+                location.reload();
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("좋아요 실패");
+            }
+        });
+        }
+
+        function dislikeArticle(articleId) {
+            $.ajax({
+            type: "DELETE",
+            url: `/articles/${articleId}/like/`,
+            success: function(response) {
+                location.reload();
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("좋아요 취소 실패");
+            }
+        });
+        }
+    const UserId = "{{ request.user.id }}";
+    $(document).ready(function () {
+    $.ajax({
+        type: "GET",
+        url: "/articles/{{ articleId }}/",
+        success: function (response) {
+            console.log(response);
+            const mainContainer = document.getElementById('main-container');
+
+            const article = response;
+            const articleContainer = document.createElement('div');
+            articleContainer.classList.add('article-container');
+            const date = new Date(article.created_at)
+            const up_date = new Date(article.updated_at)
+            let articleHTML = `
+            <div class="content">${article.content}</div>
+            <div class="like">
+                <a href="#" onclick="${isLiked(article)? `dislikeArticle(${article.id});` : `likeArticle(${article.id});`} return false;">
+                ${isLiked(article) ? '좋아요 취소' : '좋아요'}
+                </a>: ${article.like_count}개
+            </div>
+            <div class="hashtags"></div>
+            <div class="created-at">작성일: ${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+            <div class="updated-at">수정일: ${up_date.getFullYear()}-${up_date.getMonth()+1}-${up_date.getDate()}</div>
+        `;
+
+        function isLiked(article) {
+            return article.like_users.includes(parseInt(UserId));
+        }
+        console.log(article.like_users)
+        console.log(UserId)
+        console.log(isLiked(article))
+        console.log(isLiked(article) ? '좋아요 취소' : '좋아요')
+        console.log(article.author)
+        if (article.image) {
+            articleHTML = `<img src='${article.image}'/>` + articleHTML;
+        }
+        if (article.author_profile_img) {
+                articleHTML=`<div class="author"><img src='${article.author_profile_img}' class="profile-img"/> ${article.author_username}</div>`+articleHTML
+            }
+            else{
+                articleHTML=`<div class="author"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> ${article.author_username}</div>`+articleHTML
+            }
+            if (article.author == UserId) {
+                            articleHTML = articleHTML+`<div class="update-delete"><a href="/articles/${article.id}/update/template/">수정</a> <a href="#" onclick="deleteArticle(${article.id}); return false;">삭제</a></div>`;
+                        }
+        articleContainer.innerHTML = articleHTML;
+            mainContainer.appendChild(articleContainer);
+            const hashtagsContainer = articleContainer.querySelector('.hashtags');
+            article.hashtags.forEach(function (hashtag) {
+    if (hashtag.name.trim() !== '') {
+        const hashtagElement = document.createElement('a');
+        hashtagElement.classList.add('hashtag');
+        hashtagElement.textContent = `#${hashtag.name} `;
+        hashtagElement.href = `${location.origin}/articles/search/${hashtag.name}/template/`;
+        hashtagsContainer.appendChild(hashtagElement);
+    }
+});
+        },
+    });
+
+    $.ajax({
+                type: "GET",
+                url: `/articles/{{ articleId }}/comment/`,
+                success: function (comment) {
+                    console.log(comment)
+                    const commentsContainer = document.getElementById('comments-container');
+                    comment.forEach(function (comment) {
+                        const commentContainer = document.createElement('div');
+                        commentContainer.classList.add('comment-container');
+                        const date = new Date(comment.created_at)
+                        commentContainer.innerHTML = `
+                            <div class="content">${comment.comment}</div>
+                            <div class="like">좋아요: ${comment.like_count}개</div>
+                            <div class="created-at">${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+                            <div class="comment"><a href="/articles/comment/${comment.id}/template/">댓글 자세히 보기</a></div>
+                            <br>
+                        `;
+                        if (comment.author_profile_img) {
+                            commentContainer.innerHTML=`<div class="author"><img src='${comment.author_profile_img}' class="comment-profile-img"/> ${comment.author_username}</div>`+commentContainer.innerHTML
+            }
+            else{
+                commentContainer.innerHTML=`<div class="author"><img src="{% static 'accounts/user.png' %}" class="comment-profile-img"/> ${comment.author_username}</div>`+commentContainer.innerHTML
+            }
+                        commentsContainer.appendChild(commentContainer);
+                    });
+                },
+            });
+
+        });
+        function deleteArticle(articleId) {
+    if (confirm("게시글을 삭제하시겠습니까?")) {
+        $.ajax({
+            type: "DELETE",
+            url: `/articles/${articleId}/`,
+            success: function(response) {
+                alert("게시글이 삭제되었습니다.");
+                location.href = '/articles/list/template/';
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("게시글 삭제에 실패했습니다. 다시 시도해주세요.");
+            }
+        });
+    }
+}
+</script>
+{% endblock %}

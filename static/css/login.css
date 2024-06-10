@@ -1,0 +1,96 @@
+.container{
+    display: flex;
+    display : flex;
+    justify-content: center;
+    align-items : center;
+}
+
+.box {
+    width:420px;
+    height:650px;
+    margin-top: 200px;
+    margin-right: 100px;    
+}
+
+.box > img{
+    max-width:100%;
+    max-height:100%;
+    object-fit:cover;
+}
+
+.app {
+    width: 420px;
+    height: 700px;
+    border: 3px solid #444444;
+    margin-top: 150px;
+    position: relative;
+     
+}
+
+.app>h1{
+    display: flex;
+    justify-content: center;
+}
+
+form {
+    position: absolute;
+    top: 20%;
+    left: 15%;
+}
+
+input{
+    width: 300px;
+    height: 50px;
+}
+
+button#submit{
+    width: 300px;
+    height: 50px;
+    position: absolute;
+    top: 160%;
+    border-radius: 10px;
+    background-color: #FFCD4A;
+    font-size: 30px;
+    font-weight: 600;
+}
+
+textarea#introduce {
+    position: absolute;
+    width: 100%;
+}
+
+.address {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    top: 100%;
+}
+
+input#imageFile {
+    position: inherit;
+}
+
+.img_previews {
+    position: inherit;
+    display: flex;
+    top: 120%;
+    width: 100px;
+    height: 100px;
+}
+
+img#preview {
+    position: initial;
+    margin-top: 30px;
+}
+
+button.submit {
+    width: 300px;
+    height: 50px;
+    position: relative;
+    top: 50%;
+    border-radius: 10px;
+    background-color: #FFCD4A;
+    font-size: 30px;
+    font-weight: 600;
+    
+}

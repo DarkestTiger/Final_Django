@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Maps Example</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places"></script>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        function initMap() {
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 12,
+                center: {lat: -34.397, lng: 150.644}  // 기본 위치 설정
+            });
+
+            var geocoder = new google.maps.Geocoder();
+
+            // HTML5 Geolocation API를 사용하여 현재 위치 가져오기
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    var marker = new google.maps.Marker({
+                        position: pos,
+                        map: map
+                    });
+
+                    map.setCenter(pos);
+
+                    geocodeLatLng(geocoder, map, pos);
+                }, function() {
+                    handleLocationError(true, map.getCenter());
+                });
+            } else {
+                // 브라우저가 Geolocation을 지원하지 않는 경우
+                handleLocationError(false, map.getCenter());
+            }
+        }
+
+        function geocodeLatLng(geocoder, map, latlng) {
+            geocoder.geocode({'location': latlng}, function(results, status) {
+                if (status === 'OK') {
+                    if (results[0]) {
+                        var formattedAddress = transformAddress(results[0].formatted_address);
+                        var infowindow = new google.maps.InfoWindow({
+                            content: formattedAddress
+                        });
+                        infowindow.open(map, new google.maps.Marker({
+                            position: latlng,
+                            map: map
+                        }));
+                        document.getElementById('address').textContent = formattedAddress;
+                        document.getElementById('shareLocation').addEventListener('change', function() {
+                            if (this.checked) {
+                                sendAddressToBackend(formattedAddress);
+                            }
+                        });
+                    } else {
+                        window.alert('No results found');
+                    }
+                } else {
+                    window.alert('Geocoder failed due to: ' + status);
+                }
+            });
+        }
+
+        function handleLocationError(browserHasGeolocation, pos) {
+            var infoWindow = new google.maps.InfoWindow({
+                position: pos,
+                content: browserHasGeolocation ?
+                         'Error: The Geolocation service failed.' :
+                         'Error: Your browser doesn\'t support geolocation.'
+            });
+            infoWindow.open(map);
+        }
+
+        function transformAddress(address) {
+            var regionAbbreviation = {
+                "서울특별시": "서울",
+                "부산광역시": "부산",
+                "대구광역시": "대구",
+                "인천광역시": "인천",
+                "광주광역시": "광주",
+                "대전광역시": "대전",
+                "울산광역시": "울산",
+                "세종특별자치시": "세종",
+                "경기도": "경기",
+                "강원도": "강원",
+                "충청북도": "충북",
+                "충청남도": "충남",
+                "전라북도": "전북",
+                "전라남도": "전남",
+                "경상북도": "경북",
+                "경상남도": "경남",
+                "제주특별자치도": "제주"
+            };
+
+            var specialCases = [
+                "성남시", "수원시", "안양시", "부천시", 
+                "안산시", "고양시", "용인시", "청주시", 
+                "천안시", "전주시", "포항시", "창원시"
+            ];
+
+            // 주소를 공백으로 분리하여 리스트로 변환
+            var parts = address.split(' ');
+
+            // 시/도를 변환
+            if (regionAbbreviation[parts[1]]) {
+                parts[1] = regionAbbreviation[parts[1]];
+            }
+
+            // 특수 케이스 처리
+            for (var i = 0; i < specialCases.length; i++) {
+                if (parts[2].startsWith(specialCases[i])) {
+                    parts[2] = specialCases[i] + " " + parts[2].substring(specialCases[i].length);
+                    break;
+                }
+            }
+
+            // 변환된 주소 반환
+            return parts[1] + ' ' + parts[2];
+        }
+
+        async function sendAddressToBackend(address) {
+            try {
+                const response = await fetch('/accounts/submit-address/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({ address: address })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('주소 정보 전송 성공:', result);
+                } else {
+                    console.error('주소 정보 전송 실패:', response.statusText);
+                }
+            } catch (error) {
+                console.error('주소 정보 전송 중 오류 발생:', error);
+            }
+        }
+    </script>
+</head>
+<body onload="initMap()">
+    <h1>My Google Map</h1>
+    <div id="map" style="height: 500px; width: 100%;"></div>
+    <div id="address" style="margin-top: 20px;">Address: Loading...</div>
+    <label for="shareLocation">위치 공유 동의</label>
+    <input type="checkbox" id="shareLocation">
+</body>
+</html>

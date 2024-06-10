@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}
+<title>운동 루틴 추천 AI</title>
+{% endblock title %}
+
+{% block content %}
+    <div class="title">
+        <h1 class="title" style="text-align: center;font-weight: 700;margin-top: 5%;">운동 루틴 추천 AI</h1>
+    </div>
+    <div style="text-align: center;font-weight: 700;">
+        AI에게 운동 루틴을 추천받아 보세요!
+        <br><운동 부위 목록>
+        <br>1. 이두
+        <br>2. 삼두
+        <br>3. 가슴
+        <br>4. 어깨
+        <br>5. 등
+        <br>6. 하체
+        <br>7. 맨몸운동
+        <br>8. 전신운동
+        <br>(*이외의 부위는 올바른 추천이 어려울 수도 있습니다.)
+        <br>※대답까지 약 5~10초 가량의 시간이 소요될 수 있습니다.
+    </div>
+    <a class="nav-link" href="{% url 'articles:list-template'%}" style="text-align: center;display: block;margin-top: 20px;"><button>목록으로 돌아가기</button></a>
+    <a class="nav-link" href="{% url 'articles:routine-gpt-template'%}" style="text-align: center;display: block;margin-top: 20px;"><button>다시 추천 받기</button></a>
+    <form id="routine-form" style="text-align: center;margin-top: 20px;">
+        <textarea name="message" id="message" cols="30" rows="10" placeholder='내용을 입력해주세요. ex) 등 운동 추천해줘' required style="width: 80%;margin-bottom: 10px;"></textarea>
+        <br>
+        <button id="submit-button" style="background-color: #FFCD4A; border: none; color: #141414; padding: 10px 20px; font-size: 16px; font-weight: 700; cursor: pointer;">운동 루틴 추천 받기</button>
+    </form>
+    <div id="response-container" style="text-align: center;margin-top: 20px;"></div>
+
+    <script>
+        $(document).ready(function(){
+            $("#routine-form").submit(function(event){
+                event.preventDefault();
+                var formData = new FormData($(this)[0]);
+                var submitButton = $("#submit-button");
+                var routineForm = $("#routine-form");
+                submitButton.hide();
+                routineForm.find("textarea, button").prop("disabled", true);
+                $.ajax({
+                    type: 'POST',
+                    url: '/articles/routinegpt/',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response){
+                        $('#response-container').html(`
+                            <div style='border: 2px solid #333; padding: 20px; margin-top: 20px;'>
+                                ${response.routine.split('\n').map(item => `<p>${item}</p>`).join('')}
+                            </div>
+                            `);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .profile-img {
+        width: 20px;
+        height: 20px;
+        border-radius: 100%;
+    }
+    #main-container {
+        background-color: lightgray;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* 수직 가운데 정렬 */
+    }
+
+    .article-container {
+        width: flex; /* 전체 너비의 80% */
+        max-width: 600px; /* 최대 너비 설정 */
+        border: 1px gray solid;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: white;
+    }
+
+    .article-container img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+    }
+
+    .article-container .author {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .article-container .content {
+        margin-bottom: 5px;
+    }
+
+    .article-container .created-at {
+        font-size: 12px;
+        color: gray;
+        margin-bottom: 5px;
+    }
+
+    .article-container .like {
+        font-size: 14px;
+        color: gray;
+        margin-bottom: 5px;
+    }
+
+    .article-container .comment a {
+        color: blue;
+        text-decoration: none;
+    }
+
+    .hashtags a {
+        color: #2f8ad1;
+        text-decoration: none;
+        margin-right: 5px;
+    }
+</style>
+{% block title %}
+    <title>#{{ hashtag }} 검색 기록</title>
+{% endblock title %}
+
+<div class="title">
+    <h1 style="text-align: center;font-weight: 700; color: yellow">오.운.완</h1>
+    {% if request.user.is_authenticated %}
+        <h2 style="text-align: center;font-weight: 700;">{{ request.user }}</h2>
+        <a class="nav-link" href="#" onclick="logout()"style="text-align: center;font-weight: 700;"><button>로그아웃</button></a>
+    {% else %}
+        <a class="nav-link" href="{% url 'accounts:login' %}" style="text-align: center;"><button>로그인</button></a>
+    {% endif %}
+    <h3 style="text-align: center;font-weight: 700;">#{{ hashtag }}</h3>
+    <a class="nav-link" href="{% url 'articles:list-template'%}" style="text-align: center;"><button>게시글 목록</button></a>
+</div>
+<div id="main-container"></div>
+    <script>
+        function logout(){
+        $.ajax({
+        type: "POST",
+        url:"/accounts/auth/logout/",
+        success: function (response) {
+            console.log(response)
+            location.reload();
+        }
+    })
+    }
+        const UserId = "{{ request.user.id }}";
+        $.ajax({
+            type: "GET",
+            url: "/articles/search/{{ hashtag }}/",
+            success: function (response) {
+                console.log(response)
+                const mainContainer = document.getElementById('main-container')
+                response.forEach(function (article) {
+                    const articleContainer = document.createElement('div')
+                    articleContainer.classList.add('article-container')
+                    const date = new Date(article.created_at)
+                    let articleHTML = `
+                <div class="content">${article.content}</div>
+                <div class="created-at">${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+                <div class="like">좋아요: ${article.like_count}개</div>
+                <div class="comment"><a href="/articles/${article.id}/template/">댓글 ${article.comments_count}개 모두 보기</a></div>
+                <div class="hashtags"></div>
+            `;
+
+            if (article.image) {
+                articleHTML = `<img src='${article.image}'/>` + articleHTML;
+            }
+            if (article.author_profile_img) {
+                articleHTML=`<div class="author"><img src='${article.author_profile_img}' class="profile-img"/> ${article.author_username}</div>`+articleHTML
+            }
+            else{
+                articleHTML=`<div class="author"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> ${article.author_username}</div>`+articleHTML
+            }
+            if (article.author == UserId) {
+                            articleHTML = articleHTML+`<div class="update"><a href="/articles/${article.id}/update/template/">수정</a> <a href="#" onclick="deleteArticle(${article.id}); return false;">삭제</a></div>`;
+                        }
+
+            articleContainer.innerHTML = articleHTML;
+                    mainContainer.appendChild(articleContainer)
+                    const hashtagsContainer = articleContainer.querySelector('.hashtags');
+            console.log(article.hashtags)
+            article.hashtags.forEach(function (hashtag) {
+    if (hashtag.name.trim() !== '') {
+        const hashtagElement = document.createElement('a');
+        hashtagElement.classList.add('hashtag');
+        hashtagElement.textContent = `#${hashtag.name} `;
+        hashtagElement.href = `${location.origin}/articles/search/${hashtag.name}/template/`;
+        hashtagsContainer.appendChild(hashtagElement);
+    }
+});
+                })
+            },
+        });
+        function deleteArticle(articleId) {
+    if (confirm("게시글을 삭제하시겠습니까?")) {
+        $.ajax({
+            type: "DELETE",
+            url: `/articles/${articleId}/`,
+            success: function(response) {
+                alert("게시글이 삭제되었습니다.");
+                location.href = '/articles/list/template/';
+            },
+            error: function(xhr, textStatus, errorThrown) {
+                alert("게시글 삭제에 실패했습니다. 다시 시도해주세요.");
+            }
+        });
+    }
+}
+    </script>
+{% endblock %}

@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .profile-img {
+        width: 20px;
+        height: 20px;
+        border-radius: 100%;
+    }
+    #main-container {
+        background-color: lightgray;
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* 수직 가운데 정렬 */
+    }
+
+    .article-container {
+        width: flex; /* 전체 너비의 80% */
+        max-width: 600px; /* 최대 너비 설정 */
+        border: 1px gray solid;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: white;
+    }
+
+    .article-container img {
+        max-width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+    }
+
+    .article-container .author {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .article-container .content {
+        margin-bottom: 5px;
+    }
+
+    .article-container .created-at {
+        font-size: 12px;
+        color: gray;
+        margin-bottom: 5px;
+    }
+
+    .article-container .like {
+        font-size: 14px;
+        color: gray;
+        margin-bottom: 5px;
+    }
+
+    .article-container .comment a {
+        color: blue;
+        text-decoration: none;
+    }
+
+    .hashtags a {
+        color: #2f8ad1;
+        text-decoration: none;
+        margin-right: 5px;
+    }
+    
+</style>
+<script>
+    function openProfilePopup(username) {
+        var url = `/profile/${username}/`;
+        var popup = window.open(url, 'popupWindow', 'width=600,height=400,scrollbars=yes');
+        popup.focus();
+    }
+</script>
+{% block title %}
+<title>오.운.완</title>
+{% endblock title %}
+
+<div class="title">
+    <h1 style="text-align: center;font-weight: 700; color: yellow">오.운.완</h1>
+    {% if request.user.is_authenticated %}
+        <h2 style="text-align: center;font-weight: 700;"><a href="javascript:void(0);" onclick="openProfilePopup('{{ request.user.username }}');">{{ request.user }}</a></h2>
+    {% endif %}
+</div>
+
+<div id="main-container">
+    <div id="recommend-container" style="position: absolute; right: 20px; bottom: 600px;">
+        {% if request.user.is_authenticated %}
+        [프로필 추천]
+        {% endif %}
+    </div>
+    <div id="list-container" style="position: absolute; left: 20px; bottom: 600px;">
+        <a class="nav-link" href="{% url 'articles:list-template'%}"><button>게시글 목록</button></a>
+        <a class="nav-link" href="{% url 'articles:routine-gpt-template'%}"><button style="color: red">New! 운동 루틴 추천 AI</button></a>
+        <a class="nav-link" href="{% url 'articles:diet-gpt-template'%}"><button style="color: red">New! 다이어트 식단 추천 AI</button></a>
+        <a class="nav-link" href="https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&qvt=0&query=%EB%B9%84%EB%A7%8C%EB%8F%84%EA%B3%84%EC%82%B0" target="_blank"><button>BMI 계산하기</button></a>
+        <a class="nav-link" href="{% url 'articles:saved-list-template'%}"><button>저장목록 조회</button></a>
+        {% if request.user.is_authenticated %}
+            <a class="nav-link" href="{% url 'articles:create-template' %}"><button>글 작성</button></a>
+            <a class="nav-link" href="#" onclick="logout()"><button>로그아웃</button></a>
+        {% else %}
+            <a class="nav-link" href="{% url 'accounts:login' %}"><button>로그인</button></a>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function logout(){
+        $.ajax({
+        type: "POST",
+        url:"/accounts/auth/logout/",
+        success: function (response) {
+            console.log(response)
+            location.href = '/articles/list/template/';
+        }
+    })
+    }
+    const UserId = "{{ request.user.id }}";
+
+    // 프로필 추천을 가져오는 AJAX 요청
+
+    $.ajax({
+        type: "GET",
+        url:"/accounts/auth/recommend/",
+        success: function (response) {
+            console.log(response)
+            const recommendContainer = document.getElementById('recommend-container')
+            response.forEach(function (user) {
+                const userContainer =document.createElement('div')
+                userContainer.classList.add('user-container')
+                let userHTML = `
+                <div class="address">${user.address}</div>
+                `;
+                if (user.profile_img) {
+                    userHTML=`<div class="user"><img src='${user.profile_img}' class="profile-img"/> <a href="javascript:void(0);" onclick="openProfilePopup('${user.username}');">${user.username}</a></div>`+userHTML
+                }
+                else{
+                    userHTML=`<div class="user"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> <a href="javascript:void(0);" onclick="openProfilePopup('${user.username}');">${user.username}</a></div>`+userHTML
+                }
+                userContainer.innerHTML = userHTML;
+                recommendContainer.appendChild(userContainer)
+            })
+        }
+    })
+
+    // 게시글 목록을 가져오는 AJAX 요청
+
+    $.ajax({
+        type: "GET",
+        url: "/articles/",
+        success: function (response) {
+            console.log(response)
+            const mainContainer = document.getElementById('main-container')
+            response.forEach(function (article) {
+                const articleContainer = document.createElement('div')
+                articleContainer.classList.add('article-container')
+                const date = new Date(article.created_at)
+                let articleHTML = `
+                    <div class="content">${article.content}</div>
+                    <div class="created-at">${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}</div>
+                    <div class="like">좋아요: ${article.like_count}개</div>
+                    <div class="comment"><a href="/articles/${article.id}/template/">댓글 ${article.comments_count}개 모두 보기</a></div>
+                    <div class="hashtags"></div>
+                `;
+
+                if (article.image) {
+                    articleHTML = `<img src='${article.image}'/>` + articleHTML;
+                }
+                if (article.author_profile_img) {
+                    articleHTML = `<div class="author"><img src='${article.author_profile_img}' class="profile-img"/> <a href="javascript:void(0);" onclick="openProfilePopup('${article.author_username}');">${article.author_username}</a></div>` + articleHTML;
+                } else {
+                    articleHTML = `<div class="author"><img src="{% static 'accounts/user.png' %}" class="profile-img"/> <a href="javascript:void(0);" onclick="openProfilePopup('${article.author_username}');">${article.author_username}</a></div>` + articleHTML;
+                }
+                if (article.author == UserId) {
+                    articleHTML += `<div class="update"><a href="/articles/${article.id}/update/template/">수정</a> <a href="#" onclick="deleteArticle(${article.id}); return false;">삭제</a></div>`;
+                }
+
+                articleContainer.innerHTML = articleHTML;
+
+                const hashtagsContainer = articleContainer.querySelector('.hashtags');
+                console.log(article.hashtags)
+                article.hashtags.forEach(function (hashtag) {
+                    if (hashtag.name.trim() !== '') {
+                        const hashtagElement = document.createElement('a');
+                        hashtagElement.classList.add('hashtag');
+                        hashtagElement.textContent = `#${hashtag.name} `;
+                        hashtagElement.href = `${location.origin}/articles/search/${hashtag.name}/template/`;
+                        hashtagsContainer.appendChild(hashtagElement);
+                    }
+                });
+
+                mainContainer.appendChild(articleContainer);
+            });
+        },
+    });
+
+    // 게시글 삭제 함수
+
+    function deleteArticle(articleId) {
+        if (confirm("게시글을 삭제하시겠습니까?")) {
+            $.ajax({
+                type: "DELETE",
+                url: `/articles/${articleId}/`,
+                success: function(response) {
+                    alert("게시글이 삭제되었습니다.");
+                    location.href = '/articles/list/template/';
+                },
+                error: function(xhr, textStatus, errorThrown) {
+                    alert("게시글 삭제에 실패했습니다. 다시 시도해주세요.");
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}
