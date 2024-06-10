@@ -405,20 +405,23 @@
     const email = $("#email").val()
     const introduce = $("#introduce").val()
     const address = $("#address").val()
-    const profile_img = $("#imageFile").val()
-
+    // const profile_img = $("#imageFile").files;
+    var formData = new FormData();
+    var inputFile = $("input[name='profile_img']");
+    var files = inputFile[0].files;
+    formData.append("profile_img", files[0]);
+    formData.append("username", username)
+    formData.append("password", password)
+    formData.append("email", email)
+    formData.append("introduce", introduce)
+    formData.append("address", address)
 
     $.ajax({
         url: "/accounts/auth/signup/",
         type: "POST",
-        data: {
-            username:username,
-            password:password,
-            email:email,
-            introduce:introduce,
-            address:address,
-            profile_img:profile_img,
-        },
+        processData : false,
+			  contentType : false,
+        data: formData,
         success: function(response) {
             console.log("success : ",response);
             location.href="{% url 'accounts:login' %}"
