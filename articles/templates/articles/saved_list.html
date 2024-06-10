@@ -29,6 +29,7 @@
     <h1 style="text-align: center;font-weight: 700;">저장목록</h1>
     {% if request.user.is_authenticated %}
         <h2 style="text-align: center;font-weight: 700;">{{ request.user }}</h2>
+        <a class="nav-link" href="#" onclick="logout()"style="text-align: center;font-weight: 700;"><button>로그아웃</button></a>
     {% endif %}
 </div>
 <div id="main-container">
@@ -43,6 +44,16 @@
     </div>
 </div>
 <script>
+    function logout(){
+        $.ajax({
+        type: "POST",
+        url:"/accounts/auth/logout/",
+        success: function (response) {
+            console.log(response)
+            location.reload();
+        }
+    })
+    }
     const UserId = "{{ request.user.id }}";
     $.ajax({
             type: "GET",

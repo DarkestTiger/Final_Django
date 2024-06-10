@@ -73,6 +73,7 @@
     <div>
         <h1>{{ profile_user.username }} 님의 프로필</h1>
         <p>{{ profile_user.introduce }}</p>
+        <p>주소: {{ profile_user.address }}</p>
         <p>팔로워: {{ followers_count }}명</p>
         <p>팔로잉: {{ following_count }}명</p>
         {% if is_following %}

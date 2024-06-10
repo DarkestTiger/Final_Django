@@ -18,7 +18,7 @@ templates_urlpatterns = [
 
 drf_urlpatterns = [ 
     path("auth/signup/", views.UserSignUp.as_view(), name='api_signup'),
-    path("auth/login/", views.UserLogIn.as_view(), name='api_logout'),
+    path("auth/login/", views.UserLogIn.as_view(), name='api_login'),
     path("auth/logout/", views.UserLogOut.as_view(), name='api_logout'),
     path("auth/recommend/", views.profile_recommend, name='profile_recommend'), # 아래에 두면 username때문에 걸림.
     path("auth/<str:username>/", views.api_user_profile, name='api_profile'),
