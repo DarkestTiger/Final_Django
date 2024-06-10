@@ -109,7 +109,7 @@
                 <div class="comment"><a href="/articles/{{ article.id }}/template/">댓글 {{ article.comments.count }}개 모두 보기</a></div>
                 <div class="hashtags">
                     {% for hashtag in article.hashtags.all %}
-                        <a href="{% url 'articles:hashtag_search' hashtag.name %}">#{{ hashtag.name }}</a>
+                        <a href="{% url 'articles:hashtag-search-template' hashtag.name %}">#{{ hashtag.name }}</a>
                     {% endfor %}
                 </div>
             </div>
