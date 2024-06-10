@@ -81,16 +81,13 @@
 </div>
 
 <div id="main-container">
-    <div id="recommend-container" style="position: absolute; right: 20px; bottom: 600px;">
+    <div id="recommend-container" style="position: absolute; right: 20px; bottom: 500px;">
         {% if request.user.is_authenticated %}
         [프로필 추천]
         {% endif %}
     </div>
-    <div id="list-container" style="position: absolute; left: 20px; bottom: 600px;">
+    <div id="list-container" style="position: absolute; left: 20px; bottom: 500px;">
         <a class="nav-link" href="{% url 'articles:list-template'%}"><button>게시글 목록</button></a>
-        <a class="nav-link" href="{% url 'articles:routine-gpt-template'%}"><button style="color: red">New! 운동 루틴 추천 AI</button></a>
-        <a class="nav-link" href="{% url 'articles:diet-gpt-template'%}"><button style="color: red">New! 다이어트 식단 추천 AI</button></a>
-        <a class="nav-link" href="https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&qvt=0&query=%EB%B9%84%EB%A7%8C%EB%8F%84%EA%B3%84%EC%82%B0" target="_blank"><button>BMI 계산하기</button></a>
         <a class="nav-link" href="{% url 'articles:saved-list-template'%}"><button>저장목록 조회</button></a>
         {% if request.user.is_authenticated %}
             <a class="nav-link" href="{% url 'articles:create-template' %}"><button>글 작성</button></a>
@@ -98,6 +95,11 @@
         {% else %}
             <a class="nav-link" href="{% url 'accounts:login' %}"><button>로그인</button></a>
         {% endif %}
+        <br>
+        <a class="nav-link" href="{% url 'articles:routine-gpt-template'%}"><button style="color: red">New! 운동 루틴 추천 AI</button></a>
+        <a class="nav-link" href="{% url 'articles:diet-gpt-template'%}"><button style="color: red">New! 다이어트 식단 추천 AI</button></a>
+        <a class="nav-link" href="{% url 'accounts:map_view' %}"><button style="color: blue">실시간 내 위치 확인하기</button></a>
+        <a class="nav-link" href="https://search.naver.com/search.naver?where=nexearch&sm=tab_etc&qvt=0&query=%EB%B9%84%EB%A7%8C%EB%8F%84%EA%B3%84%EC%82%B0" target="_blank"><button>BMI 계산하기▶</button></a>
     </div>
 </div>
 
