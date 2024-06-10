@@ -69,7 +69,7 @@
 </style>
 
 <div class="profile-header">
-    <img src="{{ profile_user.get_profile_url }}" alt="Profile Image">
+    <img src="{{ user.get_profile_url }}" alt="Profile Image">
     <div>
         <h1>{{ profile_user.username }} 님의 프로필</h1>
         <p>{{ profile_user.introduce }}</p>
@@ -79,18 +79,18 @@
         <p>팔로잉: {{ following_count }}명</p>
 
         {% if request.user == profile_user %}
-            <button class="profile-button" onclick="location.href='{% url 'accounts:profile-modify' profile_user.username %}'">프로필 수정</button>
+            <button class="profile-button" onclick="location.href='{% url 'accounts:modify'%}'">프로필 수정</button>
             <button class="delete-button" onclick="document.getElementById('deleteModal').style.display='block'">회원 탈퇴</button>
         {% endif %}
 
 
         {% if is_following %}
-            <form action="{% url 'follow-unfollow-user' profile_user.username %}" method="post">
+            <form action="{% url 'follow-unfollow-user' username=user.username %}" method="post">
                 {% csrf_token %}
                 <button type="submit" class="follow-button">언팔로우</button>
             </form>
         {% else %}
-            <form action="{% url 'follow-unfollow-user' profile_user.username %}" method="post">
+            <form action="{% url 'follow-unfollow-user' username=user.username %}" method="post">
                 {% csrf_token %}
                 <button type="submit" class="follow-button">팔로우</button>
             </form>
