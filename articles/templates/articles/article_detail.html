@@ -120,6 +120,7 @@
             contentType: false,
             processData: false,
             success: function (response) {
+                alert("게시글이 저장목록에 저장되었습니다.");
                 location.href = `/articles/saved/${savedId}/template/`;
             },
             error: function(xhr, textStatus, errorThrown) {

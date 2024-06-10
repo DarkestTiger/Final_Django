@@ -126,6 +126,7 @@
             type: "DELETE",
             url: `/articles/saved/{{ savedId }}/${articleId}/`,
             success: function(response) {
+                alert("게시글이 저장목록에서 삭제되었습니다.");
                 location.reload()
             }
         })

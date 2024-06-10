@@ -30,6 +30,7 @@
             contentType: false,
             processData: false,
             success: function (response) {
+                alert("저장목록의 이름이 수정되었습니다.");
                 location.href = '{% url "articles:saved-list-template" %}';
             }
         });
