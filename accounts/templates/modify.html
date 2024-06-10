@@ -1,6 +1,7 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block title %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
 <title>프로필 수정</title>
 <style>
     .apps {
@@ -34,18 +35,19 @@
                   <input type="text"
                   id="email"
                   placeholder="이메일"
+                  value="{{ request.user.email}}"
                   name="email">
                 </div>
                 <br>
                 <div class="introduce">
                   <textarea id="introduce"
                   placeholder="자기소개를 입력해주세요."
-                  name="introduce"></textarea>
+                  name="introduce">{{ request.user.introduce }}</textarea>
                 </div>
                 <br>
                 <div class="address">
                   <select class="form-select form-select-sm" aria-label="Small select example" id="address">
-                    <option selected>주소 입력</option>
+                    <option value="{{ request.user.address }}"selected>{{ request.user.address|slice:"3:" }}</option>
                     {% comment %} 서울 {% endcomment %}
                     <optgroup label="서울">
                       <option value="서울 강서구">강서구</option>
@@ -373,7 +375,7 @@
                 <br>
                 <div class="img_previews">
                   <input type="file" name="profile_img" id="imageFile">
-                  <img id="preview">
+                  <img id="preview" src="{{ request.user.profile_img.url }}" alt="Current Image">
                 </div>                
                 <br>
                 <button type="button" id="submit" onclick="update(event)">수정</button>
@@ -405,7 +407,13 @@
       let formData = new FormData();
       let inputFile = $("input[name='profile_img']");
       let files = inputFile[0].files;
-      formData.append("profile_img", files[0]);
+      if (files.length > 0) {
+            formData.append("profile_img", files[0]);
+        } else {
+            // 이미지를 선택하지 않았을 때 이전 이미지의 URL을 FormData에 추가
+            const previousImageUrl = $("#preview").attr("src");
+            formData.append("previous_image_url", previousImageUrl);
+        }
       formData.append("username", username)
       formData.append("password", password)
       formData.append("email", email)
