@@ -79,7 +79,7 @@
         <p>팔로잉: {{ following_count }}명</p>
 
         {% if request.user == profile_user %}
-            <button class="profile-button" onclick="location.href='{% url 'accounts:profile-modify' profile_user.username %}'">프로필 수정</button>
+            <button class="profile-button" onclick="location.href='{% url 'accounts:modify'%}'">프로필 수정</button>
             <button class="delete-button" onclick="document.getElementById('deleteModal').style.display='block'">회원 탈퇴</button>
         {% endif %}
 
