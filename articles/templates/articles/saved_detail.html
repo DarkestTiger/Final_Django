@@ -5,6 +5,7 @@
     .profile-img {
         width: 15px;
         height: 15px;
+        border-radius: 100%;
     }
     #main-container {
         background-color: lightgray;
@@ -32,6 +33,7 @@
     <h1 style="text-align: center;font-weight: 700;">저장목록 상세</h1>
     {% if request.user.is_authenticated %}
         <h2 style="text-align: center;font-weight: 700;">{{ request.user }}</h2>
+        <a class="nav-link" href="#" onclick="logout()"style="text-align: center;font-weight: 700;"><button>로그아웃</button></a>
     {% else %}
         <a class="nav-link" href="{% url 'accounts:login' %}" style="text-align: center;"><button>로그인</button></a>
     {% endif %}
@@ -42,6 +44,16 @@
 <div id="articles-container" style="text-align: center;"></div>
 
 <script>
+    function logout(){
+        $.ajax({
+        type: "POST",
+        url:"/accounts/auth/logout/",
+        success: function (response) {
+            console.log(response)
+            location.reload();
+        }
+    })
+    }
     const UserId = "{{ request.user.id }}";
     
     $(document).ready(function () {

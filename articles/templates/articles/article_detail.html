@@ -5,10 +5,12 @@
     .profile-img {
         width: 20px;
         height: 20px;
+        border-radius: 100%;
     }
     .comment-profile-img{
         width: 20px;
         height: 20px;
+        border-radius: 100%;
     }
     #main-container {
         background-color: lightgray;
@@ -53,6 +55,7 @@
     <h1 style="text-align: center;font-weight: 700; color: yellow">오.운.완</h1>
     {% if request.user.is_authenticated %}
         <h2 style="text-align: center;font-weight: 700;">{{ request.user }}</h2>
+        <a class="nav-link" href="#" onclick="logout()"style="text-align: center;font-weight: 700;"><button>로그아웃</button></a>
     {% else %}
         <a class="nav-link" href="{% url 'accounts:login' %}" style="text-align: center;"><button>로그인</button></a>
     {% endif %}
@@ -92,6 +95,16 @@
     </form>
 {% endif %}
 <script>
+    function logout(){
+        $.ajax({
+        type: "POST",
+        url:"/accounts/auth/logout/",
+        success: function (response) {
+            console.log(response)
+            location.href = '/articles/list/template/';
+        }
+    })
+    }
     function saveArticle(event) {
         event.preventDefault();
         var selectElement = document.getElementById('savedSelect');

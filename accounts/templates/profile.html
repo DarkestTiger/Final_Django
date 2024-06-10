@@ -73,6 +73,8 @@
     <div>
         <h1>{{ profile_user.username }} 님의 프로필</h1>
         <p>{{ profile_user.introduce }}</p>
+
+        <p>주소: {{ profile_user.address }}</p>
         <p>팔로워: {{ followers_count }}명</p>
         <p>팔로잉: {{ following_count }}명</p>
 
@@ -80,6 +82,7 @@
             <button class="profile-button" onclick="location.href='{% url 'accounts:profile-modify' profile_user.username %}'">프로필 수정</button>
             <button class="delete-button" onclick="document.getElementById('deleteModal').style.display='block'">회원 탈퇴</button>
         {% endif %}
+
 
         {% if is_following %}
             <form action="{% url 'follow-unfollow-user' profile_user.username %}" method="post">
@@ -115,7 +118,7 @@
                 <div class="comment"><a href="/articles/{{ article.id }}/template/">댓글 {{ article.comments.count }}개 모두 보기</a></div>
                 <div class="hashtags">
                     {% for hashtag in article.hashtags.all %}
-                        <a href="{% url 'articles:hashtag_search' hashtag.name %}">#{{ hashtag.name }}</a>
+                        <a href="{% url 'articles:hashtag-search-template' hashtag.name %}">#{{ hashtag.name }}</a>
                     {% endfor %}
                 </div>
             </div>
