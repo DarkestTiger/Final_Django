@@ -1,13 +1,12 @@
 from django.urls import path
-
-from accounts import views, templates_views
+from . import views
+from accounts import templates_views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
 
 app_name = 'accounts'
-
 
 templates_urlpatterns = [
     path("signup/", templates_views.signup, name='signup'),
@@ -23,13 +22,13 @@ drf_urlpatterns = [
     path("auth/recommend/", views.profile_recommend, name='profile_recommend'), # 아래에 두면 username때문에 걸림.
     path("auth/<str:username>/", views.api_user_profile, name='api_profile'),
     path("auth/<str:username>/modify/", views.UpdateProfileView.as_view(), name='api_modify'),
-    path("auth/<str:username>/delete/", views.DeleteProfile.as_view(), name='api_profile'),
+    path("auth/<str:username>/delete/", views.DeleteProfile.as_view(), name='api_delete'),
     # path("auth/<str:username>/follow/", views.UserFollow.as_view(), name='api_follow'),
     path('map/', views.map_view, name='map_view'), # 구글 지도 view
     path('profile/<str:username>/', views.user_profile, name='user-profile'),
     path('profile/<str:username>/follow/', views.follow_unfollow_user, name='follow-unfollow-user'),
+    path('profile/<str:username>/modify/', views.UpdateProfileView.as_view(), name='profile-modify'), # 프로필 수정 추가
+    path('profile/<str:username>/delete/', views.DeleteProfile.as_view(), name='profile-delete'),  # 회원 탈퇴 URL 추가
 ]
 
 urlpatterns = drf_urlpatterns + templates_urlpatterns
-
-
