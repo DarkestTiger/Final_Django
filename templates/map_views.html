@@ -1,9 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Maps Example</title>
+    <title>실시간 내 위치 확인</title>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=places"></script>
     <script>
         function getCookie(name) {
@@ -138,7 +140,7 @@
             }
 
             // 변환된 주소 반환
-            return parts[1] + ' ' + parts[2];
+            return '현재 내 위치: ' + parts[1] + ' ' + parts[2];
         }
 
         async function sendAddressToBackend(address) {
@@ -165,10 +167,14 @@
     </script>
 </head>
 <body onload="initMap()">
-    <h1>My Google Map</h1>
+    <h1 class="title" style="text-align: center;font-weight: 700;margin-top: 5%;">실시간 내 위치 확인</h1>
+    <a class="nav-link" href="{% url 'articles:list-template'%}" style="text-align: center;display: block;margin-top: 20px;"><button>목록으로 돌아가기</button></a>
+    <br>
     <div id="map" style="height: 500px; width: 100%;"></div>
     <div id="address" style="margin-top: 20px;">Address: Loading...</div>
+    <br>
     <label for="shareLocation">위치 공유 동의</label>
     <input type="checkbox" id="shareLocation">
 </body>
 </html>
+{% endblock %}

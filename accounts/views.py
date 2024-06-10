@@ -194,10 +194,11 @@ class UpdateProfileView(RetrieveUpdateAPIView):
 
 
 # 회원 탈퇴기능
-class DeleteProfile(RetrieveDestroyAPIView):
-    @permission_classes([IsAuthenticated])
+
+class DeleteProfile(APIView):
+    permission_classes = [IsAuthenticated]
+
     def delete(self, request, username):
-        print(request)
         user = get_object_or_404(get_user_model(), username=username)
         if request.user != user:
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
@@ -210,8 +211,9 @@ class DeleteProfile(RetrieveDestroyAPIView):
                 return Response({"error": "비밀번호가 올바르지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
             request.user.delete()
-            return Response({"message": "회원탈퇴완료"}, status=status.HTTP_204_NO_CONTENT)
-
+            logout(request)  # 로그아웃 시킴
+            return Response({"message": "회원 탈퇴 완료"}, status=status.HTTP_204_NO_CONTENT)
+        
 
 # 보여지는 프로필 페이지
 @api_view(['GET'])
